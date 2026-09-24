@@ -1,0 +1,1123 @@
+Skip to main content
+
+
+Search
+Sign in
+API references
+Qiskit SDK
+
+SabreSwap
+class qiskit.transpiler.passes.SabreSwap(*args, **kwargs)
+
+GitHub
+Bases: TransformationPass
+
+Map input circuit onto a backend topology via insertion of SWAPs.
+
+Implementation of the SWAP-based heuristic search from the SABRE qubit mapping paper [2] (Algorithm 1) with the modifications from the LightSABRE paper [1]. The heuristic aims to minimize the number of lossy SWAPs inserted and the depth of the circuit.
+
+This algorithm starts from an initial layout of virtual qubits onto physical qubits, and iterates over the circuit DAG until all gates are exhausted, inserting SWAPs along the way. It only considers 2-qubit gates as only those are germane for the mapping problem (it is assumed that 3+ qubit gates are already decomposed).
+
+In each iteration, it will first check if there are any gates in the front_layer that can be directly applied. If so, it will apply them and remove them from front_layer, and replenish that layer with new gates if possible. Otherwise, it will try to search for SWAPs, insert the SWAPs, and update the mapping.
+
+The search for SWAPs is restricted, in the sense that we only consider physical qubits in the neighborhood of those qubits involved in front_layer. These give rise to a swap_candidate_list which is scored according to some heuristic cost function. The best SWAP is implemented and current_layout updated.
+
+This transpiler pass adds onto the SABRE algorithm in that it will run multiple trials of the algorithm with different seeds. The best output, determined by the trial with the least amount of SWAPs inserted, will be selected from the random trials.
+
+References:
+
+[1] Henry Zou and Matthew Treinish and Kevin Hartman and Alexander Ivrii and Jake Lishman. “LightSABRE: A Lightweight and Enhanced SABRE Algorithm” arXiv:2409.08368 [2] Li, Gushu, Yufei Ding, and Yuan Xie. “Tackling the qubit mapping problem for NISQ-era quantum devices.” ASPLOS 2019. arXiv:1809.02573
+
+SabreSwap initializer.
+
+Parameters
+
+coupling_map (Union[CouplingMap, Target]) – CouplingMap of the target backend.
+heuristic (str) – The type of heuristic to use when deciding best swap strategy (‘basic’ or ‘lookahead’ or ‘decay’).
+seed (int) – random seed used to tie-break among candidate swaps.
+fake_run (bool) – if true, it only pretend to do routing, i.e., no swap is effectively added.
+trials (int) – The number of seed trials to run sabre with. These will be run in parallel (unless the PassManager is already running in parallel). If not specified this defaults to the number of physical CPUs on the local system. For reproducible results it is recommended that you set this explicitly, as the output will be deterministic for a fixed number of trials.
+Raises
+
+TranspilerError – If the specified heuristic is not valid.
+
+Additional Information:
+
+The search space of possible SWAPs on physical qubits is explored by assigning a score to the layout that would result from each SWAP. The goodness of a layout is evaluated based on how viable it makes the remaining virtual gates that must be applied. A few heuristic cost functions are supported
+
+‘basic’:
+The sum of distances for corresponding physical qubits of interacting virtual qubits in the front_layer.
+
+H
+b
+a
+s
+i
+c
+=
+∑
+g
+a
+t
+e
+∈
+F
+D
+[
+π
+(
+g
+a
+t
+e
+.
+q
+1
+)
+]
+[
+π
+(
+g
+a
+t
+e
+.
+q
+2
+)
+]
+H 
+basic
+​
+ = 
+gate∈F
+∑
+​
+ D[π(gate.q 
+1
+​
+ )][π(gate.q2)]
+‘lookahead’:
+This is the sum of two costs: first is the same as the basic cost. Second is the basic cost but now evaluated for the extended set as well (i.e. 
+∣
+E
+∣
+∣E∣ number of upcoming successors to gates in front_layer F). This is weighted by some amount EXTENDED_SET_WEIGHT (W) to signify that upcoming gates are less important than the front_layer.
+
+H
+d
+e
+c
+a
+y
+=
+1
+∣
+F
+∣
+∑
+g
+a
+t
+e
+∈
+F
+D
+[
+π
+(
+g
+a
+t
+e
+.
+q
+1
+)
+]
+[
+π
+(
+g
+a
+t
+e
+.
+q
+2
+)
+]
++
+W
+∗
+1
+∣
+E
+∣
+∑
+g
+a
+t
+e
+∈
+E
+D
+[
+π
+(
+g
+a
+t
+e
+.
+q
+1
+)
+]
+[
+π
+(
+g
+a
+t
+e
+.
+q
+2
+)
+]
+H 
+decay
+​
+ = 
+∣F∣
+1
+​
+  
+gate∈F
+∑
+​
+ D[π(gate.q 
+1
+​
+ )][π(gate.q2)]+W∗ 
+∣E∣
+1
+​
+  
+gate∈E
+∑
+​
+ D[π(gate.q 
+1
+​
+ )][π(gate.q2)]
+‘decay’:
+This is the same as ‘lookahead’, but the whole cost is multiplied by a decay factor. This increases the cost if the SWAP that generated the trial layout was recently used (i.e. it penalizes increase in depth).
+
+H
+d
+e
+c
+a
+y
+=
+m
+a
+x
+(
+d
+e
+c
+a
+y
+(
+S
+W
+A
+P
+.
+q
+1
+)
+,
+d
+e
+c
+a
+y
+(
+S
+W
+A
+P
+.
+q
+2
+)
+)
+1
+∣
+F
+∣
+∑
+g
+a
+t
+e
+∈
+F
+D
+[
+π
+(
+g
+a
+t
+e
+.
+q
+1
+)
+]
+[
+π
+(
+g
+a
+t
+e
+.
+q
+2
+)
+]
++
+W
+∗
+1
+∣
+E
+∣
+∑
+g
+a
+t
+e
+∈
+E
+D
+[
+π
+(
+g
+a
+t
+e
+.
+q
+1
+)
+]
+[
+π
+(
+g
+a
+t
+e
+.
+q
+2
+)
+]
+H 
+decay
+​
+ =max(decay(SWAP.q 
+1
+​
+ ),decay(SWAP.q 
+2
+​
+ )) 
+∣F∣
+1
+​
+  
+gate∈F
+∑
+​
+ D[π(gate.q 
+1
+​
+ )][π(gate.q2)]+W∗ 
+∣E∣
+1
+​
+  
+gate∈E
+∑
+​
+ D[π(gate.q 
+1
+​
+ )][π(gate.q2)]
+Attributes
+coupling_map
+dist_matrix
+is_analysis_pass
+Check if the pass is an analysis pass.
+
+If the pass is an AnalysisPass, that means that the pass can analyze the DAG and write the results of that analysis in the property set. Modifications on the DAG are not allowed by this kind of pass.
+
+is_transformation_pass
+Check if the pass is a transformation pass.
+
+If the pass is a TransformationPass, that means that the pass can manipulate the DAG, but cannot modify the property set (but it can be read).
+
+Methods
+execute
+execute(passmanager_ir, state, callback=None)
+
+GitHub
+Execute optimization task for input Qiskit IR.
+
+Parameters
+
+passmanager_ir (DAGCircuit) – Qiskit IR to optimize.
+state (DAGCircuit) – State associated with workflow execution by the pass manager itself.
+callback (Callable[[Task, DAGCircuit, PropertySet, float, int], None] | None) – A callback function which is called per execution of optimization task.
+Returns
+
+Optimized Qiskit IR and state of the workflow.
+
+Return type
+
+tuple[DAGCircuit, PassManagerState]
+
+name
+name()
+
+GitHub
+Name of the pass.
+
+Return type
+
+str
+
+run
+run(dag)
+
+GitHub
+Run the SabreSwap pass on dag.
+
+Parameters
+
+dag (DAGCircuit) – the directed acyclic graph to be mapped.
+
+Returns
+
+A dag mapped to be compatible with the coupling_map.
+
+Return type
+
+DAGCircuit
+
+Raises
+
+TranspilerError – if the coupling map or the layout are not
+compatible with the DAG**, or **if the coupling_map=None –
+update_status
+update_status(state, run_state)
+
+GitHub
+Update workflow status.
+
+Parameters
+
+state (PassManagerState) – Pass manager state to update.
+run_state (RunState) – Completion status of current task.
+Returns
+
+Updated pass manager state.
+
+Return type
+
+PassManagerState
+
+On this page
+
+SabreSwap
+Attributes
+coupling_map
+dist_matrix
+is_analysis_pass
+is_transformation_pass
+Methods
+execute
+name
+run
+update_status
+Was this page helpful?
+Yes
+No
+Report a bug, typo, or request content on GitHub.
+Terms
+Privacy
+Cookie preferences
+Support
+Accessibility
+Security
+English
+
+
+
+
+Cookie Preferences
+SabreSwap (latest version) | IBM Quantum Documentation
+
+
+
+Skip to main content
+
+
+Search
+Sign in
+API references
+Qiskit SDK
+
+SabrePreLayout
+class qiskit.transpiler.passes.SabrePreLayout(*args, **kwargs)
+
+GitHub
+Bases: AnalysisPass
+
+Choose a starting layout to use for additional Sabre layout trials.
+
+The pass works by augmenting the coupling map with more and more “extra” edges until VF2 succeeds to find a perfect graph isomorphism. More precisely, the augmented coupling map contains edges between nodes that are within a given distance d in the original coupling map. The original edges are noise-free while the additional edges have noise that scales exponentially with the distance. The value of d is increased until an isomorphism is found.
+
+Intuitively, a better VF2 layout involves fewer and of shorter-distance extra edges.
+
+Property Set Values Written
+sabre_starting_layouts (list[Layout])
+
+An optional list of Layout objects to use for additional Sabre layout trials.
+
+References:
+
+[1] Henry Zou and Matthew Treinish and Kevin Hartman and Alexander Ivrii and Jake Lishman. “LightSABRE: A Lightweight and Enhanced SABRE Algorithm” arXiv:2409.08368
+
+param coupling_map
+
+Directed graph representing the original coupling map or a target modelling the backend (including its connectivity).
+
+param max_distance
+
+The maximum distance for running VF2 with the augmented coupling map. In particular, this also specifies the maximum distance between the original nodes that become connected in the augmented coupling map.
+
+param error_rate
+
+The error rate to assign to the “extra” edges. A non-zero error rate prioritizes VF2 to choose original edges over extra edges.
+
+param max_trials_vf2
+
+Specifies the maximum number of VF2 trials. This option remains primarily for legacy reasons since the introduction of on-the-fly scoring in VF2, which was introduced in Qiskit 2.3. To bound the time for the pass, set parameters max_distance and call_limit_vf2 instead.
+
+param call_limit_vf2
+
+The maximum number of times that the inner VF2 isomorphism search will attempt to extend the mapping. If None, then no limit. If a 2-tuple, then the limit starts as the first item, and swaps to the second after the first match is found, without resetting the number of steps taken. This can be used to allow a long search for any mapping, but still terminate quickly with a small extension budget if one is found.
+
+param improve_layout
+
+Unused (the option became obsolete with the introduction of on-the-fly scoring in VF2).
+
+param min_distance
+
+The distance for the first VF2 run with the augmented coupling map. Setting min_distance > 1 skips all smaller-distance checks, and in particular skips the distance-1 check which corresponds to running the VF2Layout pass.
+
+raises TranspilerError
+
+At runtime, if the argument coupling_map is not provided.
+
+Attributes
+is_analysis_pass
+Check if the pass is an analysis pass.
+
+If the pass is an AnalysisPass, that means that the pass can analyze the DAG and write the results of that analysis in the property set. Modifications on the DAG are not allowed by this kind of pass.
+
+is_transformation_pass
+Check if the pass is a transformation pass.
+
+If the pass is a TransformationPass, that means that the pass can manipulate the DAG, but cannot modify the property set (but it can be read).
+
+Methods
+execute
+execute(passmanager_ir, state, callback=None)
+
+GitHub
+Execute optimization task for input Qiskit IR.
+
+Parameters
+
+passmanager_ir (IR) – Qiskit IR to optimize.
+state (PassManagerState) – State associated with workflow execution by the pass manager itself.
+callback (Callable[[Task, IR_OUT, PropertySet, float, int], None] | None) – A callback function which is called per execution of optimization task.
+Returns
+
+Optimized Qiskit IR and state of the workflow.
+
+Return type
+
+tuple[IR_OUT, PassManagerState]
+
+name
+name()
+
+GitHub
+Name of the pass.
+
+Return type
+
+str
+
+run
+run(dag)
+
+GitHub
+Run the SabrePreLayout pass on dag.
+
+The discovered starting layout is written to the property set value sabre_starting_layouts.
+
+Parameters
+
+dag (DAGCircuit) – DAG to create starting layout for.
+
+update_status
+update_status(state, run_state)
+
+GitHub
+Update workflow status.
+
+Parameters
+
+state (PassManagerState) – Pass manager state to update.
+run_state (RunState) – Completion status of current task.
+Returns
+
+Updated pass manager state.
+
+Return type
+
+PassManagerState
+
+On this page
+
+SabrePreLayout
+Property Set Values Written
+Attributes
+is_analysis_pass
+is_transformation_pass
+Methods
+execute
+name
+run
+update_status
+Was this page helpful?
+Yes
+No
+Report a bug, typo, or request content on GitHub.
+Terms
+Privacy
+Cookie preferences
+Support
+Accessibility
+Security
+English
+
+
+
+
+Cookie Preferences
+
+
+
+Skip to main content
+
+
+Search
+Sign in
+API references
+Qiskit SDK
+
+SabreSwap
+class qiskit.transpiler.passes.SabreSwap(*args, **kwargs)
+
+GitHub
+Bases: TransformationPass
+
+Map input circuit onto a backend topology via insertion of SWAPs.
+
+Implementation of the SWAP-based heuristic search from the SABRE qubit mapping paper [2] (Algorithm 1) with the modifications from the LightSABRE paper [1]. The heuristic aims to minimize the number of lossy SWAPs inserted and the depth of the circuit.
+
+This algorithm starts from an initial layout of virtual qubits onto physical qubits, and iterates over the circuit DAG until all gates are exhausted, inserting SWAPs along the way. It only considers 2-qubit gates as only those are germane for the mapping problem (it is assumed that 3+ qubit gates are already decomposed).
+
+In each iteration, it will first check if there are any gates in the front_layer that can be directly applied. If so, it will apply them and remove them from front_layer, and replenish that layer with new gates if possible. Otherwise, it will try to search for SWAPs, insert the SWAPs, and update the mapping.
+
+The search for SWAPs is restricted, in the sense that we only consider physical qubits in the neighborhood of those qubits involved in front_layer. These give rise to a swap_candidate_list which is scored according to some heuristic cost function. The best SWAP is implemented and current_layout updated.
+
+This transpiler pass adds onto the SABRE algorithm in that it will run multiple trials of the algorithm with different seeds. The best output, determined by the trial with the least amount of SWAPs inserted, will be selected from the random trials.
+
+References:
+
+[1] Henry Zou and Matthew Treinish and Kevin Hartman and Alexander Ivrii and Jake Lishman. “LightSABRE: A Lightweight and Enhanced SABRE Algorithm” arXiv:2409.08368 [2] Li, Gushu, Yufei Ding, and Yuan Xie. “Tackling the qubit mapping problem for NISQ-era quantum devices.” ASPLOS 2019. arXiv:1809.02573
+
+SabreSwap initializer.
+
+Parameters
+
+coupling_map (Union[CouplingMap, Target]) – CouplingMap of the target backend.
+heuristic (str) – The type of heuristic to use when deciding best swap strategy (‘basic’ or ‘lookahead’ or ‘decay’).
+seed (int) – random seed used to tie-break among candidate swaps.
+fake_run (bool) – if true, it only pretend to do routing, i.e., no swap is effectively added.
+trials (int) – The number of seed trials to run sabre with. These will be run in parallel (unless the PassManager is already running in parallel). If not specified this defaults to the number of physical CPUs on the local system. For reproducible results it is recommended that you set this explicitly, as the output will be deterministic for a fixed number of trials.
+Raises
+
+TranspilerError – If the specified heuristic is not valid.
+
+Additional Information:
+
+The search space of possible SWAPs on physical qubits is explored by assigning a score to the layout that would result from each SWAP. The goodness of a layout is evaluated based on how viable it makes the remaining virtual gates that must be applied. A few heuristic cost functions are supported
+
+‘basic’:
+The sum of distances for corresponding physical qubits of interacting virtual qubits in the front_layer.
+
+H
+b
+a
+s
+i
+c
+=
+∑
+g
+a
+t
+e
+∈
+F
+D
+[
+π
+(
+g
+a
+t
+e
+.
+q
+1
+)
+]
+[
+π
+(
+g
+a
+t
+e
+.
+q
+2
+)
+]
+H 
+basic
+​
+ = 
+gate∈F
+∑
+​
+ D[π(gate.q 
+1
+​
+ )][π(gate.q2)]
+‘lookahead’:
+This is the sum of two costs: first is the same as the basic cost. Second is the basic cost but now evaluated for the extended set as well (i.e. 
+∣
+E
+∣
+∣E∣ number of upcoming successors to gates in front_layer F). This is weighted by some amount EXTENDED_SET_WEIGHT (W) to signify that upcoming gates are less important than the front_layer.
+
+H
+d
+e
+c
+a
+y
+=
+1
+∣
+F
+∣
+∑
+g
+a
+t
+e
+∈
+F
+D
+[
+π
+(
+g
+a
+t
+e
+.
+q
+1
+)
+]
+[
+π
+(
+g
+a
+t
+e
+.
+q
+2
+)
+]
++
+W
+∗
+1
+∣
+E
+∣
+∑
+g
+a
+t
+e
+∈
+E
+D
+[
+π
+(
+g
+a
+t
+e
+.
+q
+1
+)
+]
+[
+π
+(
+g
+a
+t
+e
+.
+q
+2
+)
+]
+H 
+decay
+​
+ = 
+∣F∣
+1
+​
+  
+gate∈F
+∑
+​
+ D[π(gate.q 
+1
+​
+ )][π(gate.q2)]+W∗ 
+∣E∣
+1
+​
+  
+gate∈E
+∑
+​
+ D[π(gate.q 
+1
+​
+ )][π(gate.q2)]
+‘decay’:
+This is the same as ‘lookahead’, but the whole cost is multiplied by a decay factor. This increases the cost if the SWAP that generated the trial layout was recently used (i.e. it penalizes increase in depth).
+
+H
+d
+e
+c
+a
+y
+=
+m
+a
+x
+(
+d
+e
+c
+a
+y
+(
+S
+W
+A
+P
+.
+q
+1
+)
+,
+d
+e
+c
+a
+y
+(
+S
+W
+A
+P
+.
+q
+2
+)
+)
+1
+∣
+F
+∣
+∑
+g
+a
+t
+e
+∈
+F
+D
+[
+π
+(
+g
+a
+t
+e
+.
+q
+1
+)
+]
+[
+π
+(
+g
+a
+t
+e
+.
+q
+2
+)
+]
++
+W
+∗
+1
+∣
+E
+∣
+∑
+g
+a
+t
+e
+∈
+E
+D
+[
+π
+(
+g
+a
+t
+e
+.
+q
+1
+)
+]
+[
+π
+(
+g
+a
+t
+e
+.
+q
+2
+)
+]
+H 
+decay
+​
+ =max(decay(SWAP.q 
+1
+​
+ ),decay(SWAP.q 
+2
+​
+ )) 
+∣F∣
+1
+​
+  
+gate∈F
+∑
+​
+ D[π(gate.q 
+1
+​
+ )][π(gate.q2)]+W∗ 
+∣E∣
+1
+​
+  
+gate∈E
+∑
+​
+ D[π(gate.q 
+1
+​
+ )][π(gate.q2)]
+Attributes
+coupling_map
+dist_matrix
+is_analysis_pass
+Check if the pass is an analysis pass.
+
+If the pass is an AnalysisPass, that means that the pass can analyze the DAG and write the results of that analysis in the property set. Modifications on the DAG are not allowed by this kind of pass.
+
+is_transformation_pass
+Check if the pass is a transformation pass.
+
+If the pass is a TransformationPass, that means that the pass can manipulate the DAG, but cannot modify the property set (but it can be read).
+
+Methods
+execute
+execute(passmanager_ir, state, callback=None)
+
+GitHub
+Execute optimization task for input Qiskit IR.
+
+Parameters
+
+passmanager_ir (DAGCircuit) – Qiskit IR to optimize.
+state (DAGCircuit) – State associated with workflow execution by the pass manager itself.
+callback (Callable[[Task, DAGCircuit, PropertySet, float, int], None] | None) – A callback function which is called per execution of optimization task.
+Returns
+
+Optimized Qiskit IR and state of the workflow.
+
+Return type
+
+tuple[DAGCircuit, PassManagerState]
+
+name
+name()
+
+GitHub
+Name of the pass.
+
+Return type
+
+str
+
+run
+run(dag)
+
+GitHub
+Run the SabreSwap pass on dag.
+
+Parameters
+
+dag (DAGCircuit) – the directed acyclic graph to be mapped.
+
+Returns
+
+A dag mapped to be compatible with the coupling_map.
+
+Return type
+
+DAGCircuit
+
+Raises
+
+TranspilerError – if the coupling map or the layout are not
+compatible with the DAG**, or **if the coupling_map=None –
+update_status
+update_status(state, run_state)
+
+GitHub
+Update workflow status.
+
+Parameters
+
+state (PassManagerState) – Pass manager state to update.
+run_state (RunState) – Completion status of current task.
+Returns
+
+Updated pass manager state.
+
+Return type
+
+PassManagerState
+
+On this page
+
+SabreSwap
+Attributes
+coupling_map
+dist_matrix
+is_analysis_pass
+is_transformation_pass
+Methods
+execute
+name
+run
+update_status
+Was this page helpful?
+Yes
+No
+Report a bug, typo, or request content on GitHub.
+Terms
+Privacy
+Cookie preferences
+Support
+Accessibility
+Security
+English
+
+
+
+
+Cookie Preferences

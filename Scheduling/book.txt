@@ -1,0 +1,2672 @@
+Chapter 2
+Deterministic Models:
+Preliminaries
+2.1 Framework and Notation . . . . . . . . . . . . . . . . . . . . . . . . . 13
+2.2 Examples . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+2.3 Classes of Schedules . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21
+2.4C omplexity Hierarchy . . . . . . . . . . . . . . . . . . . . . . . . . . . 26
+Over the last fifty years a considerable amount of research effort has been focused
+on deterministic scheduling. The number and variety of models considered
+is astounding. During this time a notation has evolved that succinctly captures
+the structure of many (but for sure not all) deterministic models that have been
+considered in the literature.
+The first section in this chapter presents an adapted version of this notation.
+The second section contains a number of examples and describes some of the
+shortcomings of the framework and notation. The third section describes several
+classes of schedules. A class of schedules is typically characterized by the
+freedomthe scheduler has in the decision-making process. The last section discusses
+the complexity of the scheduling problems introduced in the first section.
+This last section can be used, together with Appendixes D and E, to classify
+scheduling problems according to their complexity.
+2.1 Framework and Notation
+In all the scheduling problems considered the number of jobs and the number
+of machines are assumed to be finite. The number of jobs is denoted by n and
+the number of machines by m. Usually, the subscript j refers to a job while the
+subscript i refers to a machine. If a job requires a number of processing steps
+or operations, then the pair (i, j) refers to the processing step or operation of
+job j on machine i. The following pieces of data are associated with job j.
+M.L. Pinedo, Scheduling, DOI: 10.1007/978-0-387-78935-4 13
+
+c Springer Science+Business Media, LLC 2008
+2,
+14 2 Deterministic Models: Preliminaries
+Processing time (pij) The pij represents the processing time of job j on
+machine i. The subscript i is omitted if the processing time of job j does not
+depend on the machine or if job j is only to be processed on one given machine.
+Release date (rj ) The release date rj of job j may also be referred to as
+the ready date. It is the time the job arrives at the system, i.e., the earliest time
+at which job j can start its processing.
+Due date (dj) The due date dj of job j represents the committed shipping or
+completion date (i.e., the date the job is promised to the customer). Completion
+of a job after its due date is allowed, but then a penalty is incurred. When a
+due date must be met it is referred to as a deadline and denoted by ¯ dj .
+Weight (wj) Theweight wj of job j is basically a priority factor, denoting
+the importance of job j relative to the other jobs in the system. For example,
+this weight may represent the actual cost of keeping the job in the system. This
+cost could be a holding or inventory cost; it also could represent the amount of
+value already added to the job.
+A scheduling problemis described by a triplet α | β | γ. The α field describes
+the machine environment and contains just one entry. The β field provides
+details of processing characteristics and constraints and may contain no entry
+at all, a single entry, or multiple entries. The γ field describes the objective to
+be minimized and often contains a single entry.
+The possible machine environments specified in the α field are:
+Single machine (1) The case of a single machine is the simplest of all possible
+machine environments and is a special case of all other more complicated
+machine environments.
+Identical machines in parallel (Pm) There are m identical machines in
+parallel. Job j requires a single operation and may be processed on any one of
+the m machines or on any one that belongs to a given subset. If job j cannot
+be processed on just any machine, but only on any one belonging to a specific
+subset Mj, then the entry Mj appears in the β field.
+Machines in parallel with different speeds (Qm) Therearem machines
+in parallel with different speeds. The speed of machine i is denoted by vi. The
+time pij that job j spends on machine i is equal to pj/vi (assuming job j receives
+all its processing fromm achine i). This environment is referred to as uniform
+machines. If all machines have the same speed, i.e., vi = 1 for all i and pij = pj ,
+then the environment is identical to the previous one.
+Unrelated machines in parallel (Rm) This environment is a further
+generalization of the previous one. There are m different machines in parallel.
+Machine i can process job j at speed vij. The tim epij that job j spends on
+machine i is equal to pj/vij (again assuming job j receives all its processing
+fromm achine i). If the speeds of the machines are independent of the jobs, i.e.,
+vij = vi for all i and j, then the environment is identical to the previous one.
+2.1 Framework and Notation 15
+Flow shop (Fm) There are m machines in series. Each job has to be
+processed on each one of the m machines. All jobs have to follow the same
+route, i.e., they have to be processed first on machine 1, then on machine 2,
+and so on. After completion on one machine a job joins the queue at the next
+machine. Usually, all queues are assumed to operate under the First In First
+Out (FIFO) discipline, that is, a job cannot ”pass” another while waiting in
+a queue. If the FIFO discipline is in effect the flow shop is referred to as a
+permutation flow shop and the β field includes the entry prmu.
+Flexible flow shop (FFc) A flexible flow shop is a generalization of the flow
+shop and the parallel machine environments. Instead of m machines in series
+there are c stages in series with at each stage a number of identical machines in
+parallel. Each job has to be processed first at stage 1, then at stage 2, and so on.
+A stage functions as a bank of parallel machines; at each stage job j requires
+processing on only one machine and any machine can do. The queues between
+the various stages may or may not operate according to the First Come First
+Served (FCFS) discipline. (Flexible flow shops have in the literature at times
+also been referred to as hybrid flow shops and as multi-processor flow shops.)
+Job shop (Jm) In a job shop with m machines each job has its own
+predetermined route to follow. A distinction is made between job shops in which
+each job visits each machine at most once and job shops in which a job may
+visit each machine more than once. In the latter case the β-field contains the
+entry rcrc for recirculation.
+Flexible job shop (FJc) A flexible job shop is a generalization of the job
+shop and the parallel machine environments. Instead of m machines in series
+there are c work centers with at each work center a number of identical machines
+in parallel. Each job has its own route to follow through the shop; job j requires
+processing at each work center on only one machine and any machine can do.
+If a job on its route through the shop may visit a work center more than once,
+then the β-field contains the entry rcrc for recirculation.
+Open shop (Om) There are m machines. Each job has to be processed
+again on each one of the m machines. However, some of these processing times
+may be zero. There are no restrictions with regard to the routing of each job
+through the machine environment. The scheduler is allowed to determine a
+route for each job and different jobs may have different routes.
+The processing restrictions and constraints specified in the β field may include
+multiple entries. Possible entries in the β field are:
+Release dates (rj ) If this symbol appears in the β field, then job j cannot
+start its processing before its release date rj. If rj does not appear in the β
+field, the processing of job j may start at any time. In contrast to release dates,
+due dates are not specified in this field. The type of objective function gives
+sufficient indication whether or not there are due dates.
+16 2 Deterministic Models: Preliminaries
+Preemptions (prmp) Preemptions imply that it is not necessary to keep a
+job on a machine, once started, until its completion. The scheduler is allowed
+to interrupt the processing of a job (preempt) at any point in time and put a
+different job on the machine instead. The amount of processing a preempted job
+already has received is not lost.When a preempted job is afterwards put back on
+the machine (or on another machine in the case of parallel machines), it only
+needs the machine for its remaining processing time. When preemptions are
+allowed prmp is included in the β field; when prmp is not included, preemptions
+are not allowed.
+Precedence constraints (prec) Precedence constraints may appear in a
+single machine or in a parallel machine environment, requiring that one or
+more jobs may have to be completed before another job is allowed to start its
+processing. There are several special forms of precedence constraints: if each
+job has at most one predecessor and at most one successor, the constraints are
+referred to as chains. If each job has at most one successor, the constraints are
+referred to as an intree. If each job has at most one predecessor the constraints
+are referred to as an outtree. If no prec appears in the β field, the jobs are not
+subject to precedence constraints.
+Sequence dependent setup times (sjk) The sjk represents the sequence
+dependent setup time that is incurred between the processing of jobs j and k;
+s0k denotes the setup time for job k if job k is first in the sequence and sj0 the
+clean-up time after job j if job j is last in the sequence (of course, s0k and sj0
+may be zero). If the setup time between jobs j and k depends on the machine,
+then the subscript i is included, i.e., sijk. If no sjk appears in the β field, all
+setup times are assumed to be 0 or sequence independent, in which case they
+are simply included in the processing times.
+Job families (fmls) The n jobs belong in this case to F different job families.
+Jobs from the same family may have different processing times, but they can
+be processed on a machine one after another without requiring any setup in
+between. However, if the machine switches over from one family to another, say
+fromfa mily g to family h, then a setup is required. If this setup time depends
+on both families g and h and is sequence dependent, then it is denoted by sgh.
+If this setup time depends only on the family about to start, i.e., family h,
+then it is denoted by sh. If it does not depend on either family, it is denoted
+by s.
+Batch processing (batch(b)) A machine may be able to process a number of
+jobs, say b, simultaneously; that is, it can process a batch of up to b jobs at the
+same time. The processing times of the jobs in a batch may not be all the same
+and the entire batch is finished only when the last job of the batch has been
+completed, implying that the completion time of the entire batch is determined
+by the job with the longest processing time. If b = 1, then the problemr educes to
+a conventional scheduling environment. Another special case that is of interest
+is b = ∞, i.e., there is no limit on the number of jobs the machine can handle
+at any time.
+2.1 Framework and Notation 17
+Breakdowns (brkdwn) Machine breakdowns imply that a machine may not
+be continuously available. The periods that a machine is not available are, in
+this part of the book, assumed to be fixed (e.g., due to shifts or scheduled maintenance).
+If there are a number of identical machines in parallel, the number of
+machines available at any point in time is a function of time, i.e., m(t). Machine
+breakdowns are at times also referred to as machine availability constraints.
+Machine eligibility restrictions (Mj) The Mj symbol may appear in the
+β field when the machine environment is m machines in parallel (Pm). When
+the Mj is present, not all m machines are capable of processing job j. Set Mj
+denotes the set of machines that can process job j. If the β field does not contain
+Mj, job j m ay be processed on any one of the m machines.
+Permutation (prmu) A constraint that may appear in the flow shop environment
+is that the queues in front of each machine operate according to the
+First In First Out (FIFO) discipline. This implies that the order (or permutation)
+in which the jobs go through the first machine is maintained throughout
+the system.
+Blocking (block) Blocking is a phenomenon that may occur in flow shops.
+If a flow shop has a limited buffer in between two successive machines, then it
+may happen that when the buffer is full the upstream machine is not allowed to
+release a completed job. Blocking implies that the completed job has to remain
+on the upstream machine preventing (i.e., blocking) that machine from working
+on the next job. The most common occurrence of blocking that is considered in
+this book is the case with zero buffers in between any two successive machines.
+In this case a job that has completed its processing on a given machine cannot
+leave the machine if the preceding job has not yet completed its processing on
+the next machine; thus, the blocked job also prevents (or blocks) the next job
+from starting its processing on the given machine. In the models with blocking
+that are considered in subsequent chapters the assumption is made that the
+machines operate according to FIFO. That is, block implies prmu.
+No-wait (nwt) The no-wait requirement is another phenomenon that may
+occur in flow shops. Jobs are not allowed to wait between two successive machines.
+This implies that the starting time of a job at the first machine has to
+be delayed to ensure that the job can go through the flow shop without having
+to wait for any machine. An example of such an operation is a steel rolling mill
+in which a slab of steel is not allowed to wait as it would cool off during a wait.
+It is clear that under no-wait the machines also operate according to the FIFO
+discipline.
+Recirculation (rcrc) Recirculation may occur in a job shop or flexible job
+shop when a job may visit a machine or work center more than once.
+Any other entry that may appear in the β field is self explanatory. For example,
+pj = p implies that all processing times are equal and dj = d implies that
+all due dates are equal. As stated before, due dates, in contrast to release dates,
+are usually not explicitly specified in this field; the type of objective function
+gives sufficient indication whether or not the jobs have due dates.
+18 2 Deterministic Models: Preliminaries
+Uj
+Lj Tj
+dj
+dj
+dj
+Cj
+Cj
+Cj
+1
+Fig. 2.1 Due date related penalty functions
+The objective to be minimized is always a function of the completion times
+of the jobs, which, of course, depend on the schedule. The completion time of
+the operation of job j on machine i is denoted by Cij. The tim ejob j exits the
+system (that is, its completion time on the last machine on which it requires
+processing) is denoted by Cj . The objective may also be a function of the due
+dates. The lateness of job j is defined as
+Lj = Cj − dj ,
+which is positive when job j is completed late and negative when it is completed
+early. The tardiness of job j is defined as
+Tj = m ax(Cj − dj , 0) = max(Lj, 0).
+The difference between the tardiness and the lateness lies in the fact that the
+tardiness never is negative. The unit penalty of job j is defined as
+Uj =
+
+1 if Cj > dj
+0 otherwise
+The lateness, the tardiness and the unit penalty are the three basic due date
+related penalty functions considered in this book. The shape of these functions
+are depicted in Figure 2.1.
+Examples of possible objective functions to be minimized are:
+Makespan (Cmax) The makespan, defined as max(C1, . . ., Cn), is equivalent
+to the completion time of the last job to leave the system. A minimum makespan
+usually implies a good utilization of the machine(s).
+2.1 Framework and Notation 19
+Maximum Lateness (Lmax) The maximum lateness, Lmax, is defined as
+max(L1, . . ., Ln). It measures the worst violation of the due dates.
+Total weighted completion time (
+
+wjCj) The sumof the weighted
+completion times of the n jobs gives an indication of the total holding or inventory
+costs incurred by the schedule. The sum of the completion times is in
+the literature often referred to as the flow time. The total weighted completion
+time is then referred to as the weighted flow time.
+Discounted total weighted completion time (
+
+wj(1−e−rCj)) This is
+a more general cost function than the previous one, where costs are discounted
+at a rate of r, 0 < r < 1, per unit time. That is, if job j is not completed
+by time t an additional cost wjre−rtdt is incurred over the period [t, t + dt]. If
+job j is completed at time t the total cost incurred over the period [ 0, t ] is
+wj(1 − e−rt). The value of r is usually close to 0, say 0.1 or 10 %.
+Total weighted tardiness (
+
+wjTj) This is also a more general cost function
+than the total weighted completion time.
+Weighted number of tardy jobs (
+
+wjUj) The weighted number of tardy
+jobs is not only a measure of academic interest, it is often an objective in practice
+as it is a measure that can be recorded very easily.
+All the objective functions above are so-called regular performance measures.
+A regular performance measure is a function that is nondecreasing in
+C1, . . ., Cn. Recently researchers have begun to study objective functions that
+are not regular. For example, when job j has a due date dj , it may be subject
+to an earliness penalty, where the earliness of job j is defined as
+Ej = m ax(dj − Cj , 0).
+This earliness penalty is nonincreasing in Cj . An objective such as the total
+earliness plus the total tardiness, i.e.,
+n
+j=1
+Ej +
+n
+j=1
+Tj ,
+is therefore not regular. A more general objective that is not regular is the total
+weighted earliness plus the total weighted tardiness, i.e.,
+n
+j=1
+w
+
+jEj +
+n
+j=1
+w
+
+j Tj.
+The weight associated with the earliness of job j (w
+j) m ay be different from
+the weight associated with the tardiness of job j (w
+j ).
+20 2 Deterministic Models: Preliminaries
+2.2 Examples
+The following examples illustrate the notation:
+Example 2.2.1 (A Flexible Flow Shop)
+FFc | rj |
+
+wjTj denotes a flexible flow shop. The jobs have release dates
+and due dates and the objective is the minimization of the total weighted tardiness.
+Example 1.1.1 in Section 1.1 (the paper bag factory) can be modeled
+as such. Actually, the problemdescr ibed in Section 1.1 has some additional
+characteristics including sequence dependent setup times at each of the three
+stages. In addition, the processing time of job j on machine i has a special
+structure: it depends on the number of bags and on the speed of the machine.
+||
+Example 2.2.2 (A Flexible Job Shop)
+FJc | rj, sijk, rcrc | 
+wjTj refers to a flexible job shop with c work centers.
+The jobs have different release dates and are subject to sequence dependent
+setup times that are machine dependent. There is recirculation, so a job may
+visit a work center more than once. The objective is to minimize the total
+weighted tardiness. It is clear that this problemis a more general problem
+than the one described in the previous example. Example 1.1.2 in Section
+1.1 (the semiconductor manufacturing facility) can be modeled as such. ||
+Example 2.2.3 (A Parallel Machine Environment)
+Pm | rj,Mj | 
+wjTj denotes a systemwith m machines in parallel. Job j
+arrives at release date rj and has to leave by the due date dj. Job j may be
+processed only on one of the machines belonging to the subset Mj. If job j
+is not completed in time a penalty wjTj is incurred. This model can be used
+for the gate assignment problem described in Example 1.1.3. ||
+Example 2.2.4( A Single Machine Environment)
+1 | rj, prmp | 
+wjCj denotes a single machine system with job j entering
+the systema t its release date rj . Preemptions are allowed. The objective to
+be minimized is the sum of the weighted completion times. This model can
+be used to study the deterministic counterpart of the problem described in
+Example 1.1.4. ||
+Example 2.2.5 (Sequence Dependent Setup Times)
+1 | sjk | Cmax denotes a single machine system with n jobs subject to
+sequence dependent setup times, where the objective is to minimize the
+makespan. It is well-known that this problem is equivalent to the so-called
+Travelling Salesman Problem (TSP), where a salesman has to tour n cities
+in such a way that the total distance traveled is minimized (see Appendix D
+for a formal definition of the TSP). ||
+2.3 Classes of Schedules 21
+Example 2.2.6 (A Project)
+P∞ | prec | Cmax denotes a scheduling problemwith n jobs subject to
+precedence constraints and an unlimited number of machines (or resources)
+in parallel. The total time of the entire project has to be minimized. This type
+of problem is very common in project planning in the construction industry
+and has lead to techniques such as the Critical Path Method (CPM) and the
+Project Evaluation and Review Technique (PERT). ||
+Example 2.2.7 (A Flow Shop)
+Fm | pij = pj |
+
+wjCj denotes a proportionate flow shop environment with
+m machines in series; the processing times of job j on all m machines are
+identical and equal to pj (hence the termprop ortionate). The objective is to
+find the order in which the n jobs go through the systemso that the sum of
+the weighted completion times is minimized. ||
+Example 2.2.8 (A Job Shop)
+Jm || Cmax denotes a job shop problemwith m machines. There is no recirculation,
+so a job visits each machine at most once. The objective is to
+minimize the makespan. This problem is considered a classic in the scheduling
+literature and has received an enormous amount of attention. ||
+Of course, there are many scheduling models that are not captured by this
+framework. One can define, for example, a more general flexible job shop in
+which each work center consists of a number of unrelated machines in parallel.
+When a job on its route through the systema rrives at a bank of unrelated
+machines, it may be processed on any one of the machines, but its processing
+time now depends on the machine on which it is processed.
+One can also define a model that is a mixture of a job shop and an open shop.
+The routes of some jobs are fixed, while the routes of other jobs are (partially)
+open.
+The framework described in Section 2.1 has been designed primarily for models
+with a single objective. Most research in the past has concentrated on models
+with a single objective. Recently, researchers have begun studying models with
+multiple objectives as well.
+Various other scheduling features, that are not mentioned here, have been
+studied and analyzed in the literature. Such features include periodic or cyclic
+scheduling, personnel scheduling, and resource constrained scheduling.
+2.3Classes of Schedules
+In scheduling terminology a distinction is often made between a sequence, a
+schedule and a scheduling policy. A sequence usually corresponds to a permutation
+of the n jobs or the order in which jobs are to be processed on a given
+22 2 Deterministic Models: Preliminaries
+machine. A schedule usually refers to an allocation of jobs within a more complicated
+setting of machines, allowing possibly for preemptions of jobs by other
+jobs that are released at later points in time. The concept of a scheduling policy
+is often used in stochastic settings: a policy prescribes an appropriate action
+for any one of the states the system may be in. In deterministic models usually
+only sequences or schedules are of importance.
+Assumptions have to be made with regard to what the scheduler may and
+may not do when he generates a schedule. For example, it may be the case that
+a schedule may not have any unforced idleness on any machine. This class of
+schedules can be defined as follows.
+Definition 2.3.1 (Non-Delay Schedule). A feasible schedule is called
+non-delay if no machine is kept idle while an operation is waiting for processing.
+Requiring a schedule to be non-delay is equivalent to prohibiting unforced
+idleness. For many models, including those that allow preemptions and have
+regular objective functions, there are optimal schedules that are non-delay. For
+many models considered in this part of the book the goal is to find an optimal
+schedule that is non-delay. However, there are models where it may be
+advantageous to have periods of unforced idleness.
+A smaller class of schedules, within the class of all non-delay schedules, is the
+class of nonpreemptive non-delay schedules. Nonpreemptive non-delay schedules
+may lead to some interesting and unexpected anomalies.
+Example 2.3.2 (A Scheduling Anomaly)
+Consider an instance of P2 | prec | Cmax with 10 jobs and the following
+processing times.
+jobs 1 2 3 4 5 6 7 8 9 10
+pj 8 7 7 2 3 2 2 8 8 15
+The jobs are subject to the precedence constraints depicted in Figure 2.2.
+The makespan of the non-delay schedule depicted in Figure 2.3.a is 31 and
+the schedule is clearly optimal.
+One would expect that, if each one of the ten processing times is reduced
+by one time unit, the makespan would be less than 31. However, requiring
+the schedule to be non-delay results in the schedule depicted in Figure 2.3.b
+with a makespan of 32.
+Suppose that an additional machine is made available and that there are
+now three machines instead of two. One would again expect the makespan
+with the original set of processing times to be less than 31. Again, the nondelay
+requirement has an unexpected effect: the makespan is now 36. ||
+2.3 Classes of Schedules 23
+3
+5
+4
+6 9
+8
+1
+2
+10
+7
+Fig. 2.2 Precedence constraints graph for Example 2.3.2.
+10 20 30
+(c)
+0
+10 20
+1 2
+4 5 8
+6 7 9
+3 10
+30
+(b)
+0
+4 6 5 7 8 3 10
+1 2 9
+10 20 30
+(a)
+0
+4 6 5 7 3 10
+1 2 8 9
+Fig. 2.3 Gantt charts of nondelay schedules: (a) Original schedule
+(b) Processing times one unit shorter (c) Original processing times and
+three machines
+24 2 Deterministic Models: Preliminaries
+0 2 4 6 8
+2
+2 1
+Machine 1 1
+Machine 2
+Machine 3
+t
+Fig. 2.4 An active schedule that is not nondelay.
+Some heuristic procedures and algorithms for job shops are based on the
+construction of nonpreemptive schedules with certain special properties. Two
+classes of nonpreemptive schedules are of importance for certain algorithmic
+procedures for job shops.
+Definition 2.3.3 (Active Schedule). A feasible nonpreemptive schedule
+is called active if it is not possible to construct another schedule, through changes
+in the order of processing on the machines, with at least one operation finishing
+earlier and no operation finishing later.
+In other words, a schedule is active if no operation can be put into an empty
+hole earlier in the schedule while preserving feasibility. A nonpreemptive nondelay
+schedule has to be active but the reverse is not necessarily true. The
+following example describes a schedule that is active but not non-delay.
+Example 2.3.4( An Active Schedule)
+Consider a job shop with three machines and two jobs. Job 1 needs one time
+unit on machine 1 and 3 time units on machine 2. Job 2 needs 2 time units
+on machine 3 and 3 time units on machine 2. Both jobs have to be processed
+last on machine 2. Consider the schedule which processes job 2 on machine 2
+before job 1 (see Figure 2.4). It is clear that this schedule is active; reversing
+the sequence of the two jobs on machine 2 postpones the processing of job 2.
+However, the schedule is not non-delay. Machine 2 remains idle till time 2,
+while there is already a job available for processing at time 1. ||
+It can be shown that, when the objective γ is regular, there exists for Jm || γ
+an optimal schedule that is active.
+An even larger class of nonpreemptive schedules can be defined as follows.
+Definition 2.3.5 (Semi-Active Schedule). A feasible nonpreemptive
+schedule is called semi-active if no operation can be completed earlier without
+changing the order of processing on any one of the machines.
+It is clear that an active schedule has to be semi-active. However, the reverse
+is not necessarily true.
+2.3 Classes of Schedules 25
+0 2 4 6 8
+2
+2 1
+Machine 1 1
+Machine 2
+Machine 3
+t
+Fig. 2.5 A semi-active schedule that is not active.
+Nondelay Active
+Optimal schedule
+Semiactive
+All Schedules
+Fig. 2.6 Venn diagram of classes of nonpreemptive schedules for job
+shops
+Example 2.3.6 (A Semi-Active Schedule)
+Consider again a job shop with three machines and two jobs. The routing of
+the two jobs is the same as in the previous example. The processing times of
+job 1 on machines 1 and 2 are both equal to 1. The processing times of job 2
+on machines 2 and 3 are both equal to 2. Consider the schedule under which
+job 2 is processed on machine 2 before job 1 (see Figure 2.5). This implies
+that job 2 starts its processing on machine 2 at time 2 and job 1 starts its
+processing on machine 2 at time 4. This schedule is semi-active. However, it
+is not active, as job 1 can be processed on machine 2 without delaying the
+processing of job 2 on machine 2.
+An example of a schedule that is not even semi-active can be constructed
+easily. Postpone the start of the processing of job 1 on machine 2 for one time
+unit, i.e., machine 2 is kept idle for one unit of time between the processing
+of jobs 2 and 1. Clearly, this schedule is not even semi-active. ||
+Figure 2.6 shows a Venn diagramof the three classes of nonpreemptive schedules:
+the nonpreemptive non-delay schedules, the active schedules, and the semiactive
+schedules.
+26 2 Deterministic Models: Preliminaries
+2.4 Complexity Hierarchy
+Often, an algorithmfo r one scheduling problem can be applied to another
+scheduling problema s well. For example, 1 ||
+
+Cj is a special case of
+1 || 
+wjCj and a procedure for 1 || 
+wjCj can, of course, also be used
+for 1 || 
+Cj . In complexity terminology it is then said that 1 || 
+Cj reduces
+to 1 ||
+
+wjCj . This is usually denoted by
+1 || 
+Cj ∝ 1 || 
+wjCj .
+Based on this concept a chain of reductions can be established. For example,
+1 || 
+Cj ∝ 1 || 
+wjCj ∝ Pm || 
+wjCj ∝ Qm | prec | 
+wjCj .
+Of course, there are also many problems that are not comparable with one
+another. For example, Pm || 
+wjTj is not comparable to Jm || Cmax.
+A considerable effort has been made to establish a problem hierarchy describing
+the relationships between the hundreds of scheduling problems. In the
+comparisons between the complexities of the different scheduling problems it
+is of interest to know how a change in a single element in the classification of
+a problemaff ects its complexity. In Figure 2.7 a number of graphs are exhibited
+that help determine the complexity hierarchy of deterministic scheduling
+problems. Most of the hierarchy depicted in these graphs is relatively straightforward.
+However, two of the relationships may need some explaining, namely
+α | β | Lmax ∝ α | β |
+
+Uj
+and
+α | β | Lmax ∝ α | β |
+
+Tj.
+It can, indeed, be shown that a procedure for α | β | 
+Uj and a procedure for
+α | β | 
+Tj can be applied to α | β | Lmax with only minor modifications (see
+Exercise 2.23).
+A significant amount of research in deterministic scheduling has been devoted
+to finding efficient, so-called polynomial time, algorithms for scheduling
+problems. However, many scheduling problems do not have a polynomial time
+algorithm; these problems are the so-called NP-hard problems. Verifying that
+a problem is NP-hard requires a formal mathematical proof (see Appendix D).
+Research in the past has focused in particular on the borderline between
+polynomial time solvable problems and NP-hard problems. For example, in the
+string of problems described above, 1 ||
+
+wjCj can be solved in polynomial
+time, whereas Pm || 
+wjCj is NP-hard, which implies that Qm | prec | 
+wjCj is also NP-hard. The following examples illustrate the borderlines between
+easy and hard problems within given sets of problems.
+Example 2.4.1 (A Complexity Hierarchy)
+Consider the problems
+(i) 1 || Cmax,
+(ii) P2 || Cmax,
+2.4 Complexity Hierarchy 27
+(b)
+(c)
+(a)
+rj
+0
+wjTj wjUj
+Tj
+Lmax
+Cmax
+wjCj
+Cj
+Uj
+0 0 0
+sjk prmp prec
+0
+brkdwn
+0
+Mj
+0
+block
+0
+nwt
+0
+recrc
+Rm
+Qm FFc Jm
+Pm Fm
+1
+Om
+FJc
+Fig. 2.7 Complexity hierarchies of deterministic scheduling problems:
+(a) Machine environments (b) Processing restrictions and constraints
+(c) Objective functions
+(iii) F2 || Cmax,
+(iv) Jm || Cmax,
+(v) FFc || Cmax.
+The complexity hierarchy is depicted in Figure 2.8. ||
+Example 2.4.2 (A Complexity Hierarchy)
+Consider the problems
+(i) 1 || Lmax,
+(ii) 1 | prmp | Lmax,
+(iii) 1 | rj | Lmax,
+28 2 Deterministic Models: Preliminaries
+FFcCmax
+P2Cmax
+JmCmax
+F2Cmax
+Hard
+Easy
+1Cmax
+Fig. 2.8 Complexity hierarchy of problems in Example 2.4.1
+PmLmax 1rjLmax 1rj, prmpLmax
+Hard 1Lmax 1prmpLmax
+Easy
+Fig. 2.9 Complexity hierarchy of problems in Example 2.4.2
+(iv) 1 | rj, prmp | Lmax,
+(v) Pm || Lmax.
+The complexity hierarchy is depicted in Figure 2.9. ||
+Exercises (Computational)
+2.1. Consider the instance of 1 || 
+wjCj with the following processing times
+and weights.
+jobs 1 2 3 4
+wj 6 11 9 5
+pj 3 5 7 4
+(a) Find the optimal sequence and compute the value of the objective.
+Exercises 29
+(b) Give an argument for positioning jobs with larger weight more towards
+the beginning of the sequence and jobs with smaller weight more towards
+the end of the sequence.
+(c) Give an argument for positioning jobs with smaller processing time
+more towards the beginning of the sequence and jobs with larger processing
+time more towards the end of the sequence.
+(d) Determine which one of the following two generic rules is the most
+suitable for the problem:
+(i) sequence the jobs in decreasing order of wj − pj ;
+(ii) sequence the jobs in decreasing order of wj/pj.
+2.2. Consider the instance of 1 || Lmax with the following processing times and
+due dates.
+jobs 1 2 3 4
+pj 5 4 3 6
+dj 3 5 11 12
+(a) Find the optimal sequence and compute the value of the objective.
+(b) Give an argument for positioning jobs with earlier due dates more towards
+the beginning of the sequence and jobs with later due dates more
+towards the end of the sequence.
+(c) Give an argument for positioning jobs with smaller processing time
+more towards the beginning of the sequence and jobs with larger processing
+time more towards the end of the sequence.
+(d) Determine which one of the following four rules is the most suitable
+generic rule for the problem:
+(i) sequence the jobs in increasing order of dj + pj ;
+(ii) sequence the jobs in increasing order of djpj ;
+(iii) sequence the jobs in increasing order of dj ;
+(iv) sequence the jobs in increasing order of pj.
+2.3. Consider the instance of 1 || 
+Uj with the following processing times and
+due dates.
+jobs 1 2 3 4
+pj 7 6 4 8
+dj 8 9 11 14
+(a) Find all optimal sequences and compute the value of the objective.
+30 2 Deterministic Models: Preliminaries
+(b) Formulate a generic rule based on the due dates and processing times
+that yields an optimal sequence for any instance.
+2.4. Consider the instance of 1 || 
+Tj with the following processing times and
+due dates.
+jobs 1 2 3 4
+pj 7 6 8 4
+dj 8 9 10 14
+(a) Find all optimal sequences.
+(b) Formulate a generic rule that is a function of the due dates and processing
+times that yields an optimal sequence for any instance.
+2.5. Find the optimal sequence for P5 || Cmax with the following 11 jobs.
+jobs 1 2 3 4 5 6 7 8 9 10 11
+pj 9 9 8 8 7 7 6 6 5 5 5
+2.6. Consider the instance of F2 | prmu | Cmax with the following processing
+times.
+jobs 1 2 3 4
+p1j 8 6 4 12
+p2j 4 9 10 6
+Find all optimal sequences and determine the makespan under an optimal sequence.
+2.7. Consider the instance of F2 | block | Cmax with the same jobs and the
+same processing times as in Exercise 2.6. There is no (zero) buffer between the
+two machines. Find all optimal sequences and compute the makespan under an
+optimal sequence.
+2.8. Consider the instance of F2 | nwt | Cmax with the same jobs and the same
+processing times as in Exercise 2.6. Find all optimal sequences and compute the
+makespan under an optimal sequence.
+2.9. Consider the instance of O2 || Cmax with 4 jobs. The processing times of
+the four jobs on the two machines are again as in Exercise 2.6. Find all optimal
+schedules and compute the makespan under an optimal schedule.
+Exercises 31
+2.10. Consider the instance of J2 || Cmax with 4 jobs. The processing times
+of the four jobs on the two machines are again as in Exercise 2.6. Jobs 1 and
+2 have to be processed first on machine 1 and then on machine 2, while jobs 3
+and 4 have to be processed first on machine 2 and then on machine 1. Find all
+optimal schedules and determine the makespan under an optimal schedule.
+Exercises (Theory)
+2.11. Explain why α | pj = 1, rj | γ is easier than α | prmp, rj | γ when all
+processing times, release dates and due dates are integer.
+2.12. Consider 1 | sjk = ak + bj | Cmax. That is, job j has two parameters
+associated with it, namely aj and bj. If job j is followed by job k, there is a
+setup time sjk = ak + bj required before the start of job k’s processing. The
+setup tim e of the first job in the sequence, s0k is ak, while the “clean-up” time
+at the completion of the last job in the sequence, sj0, is bj . Show that this
+problemis equivalent to 1 || Cmax and that the makespan therefore does not
+depend on the sequence. Find an expression for the makespan.
+2.13. Show that 1 | sjk | Cmax is equivalent to the following Travelling
+Salesman Problem: A travelling salesman starts out from city 0, visits cities
+1, 2, . . . , n and returns to city 0, while minimizing the total distance travelled.
+The distance from city 0 to city k is s0k; the distance fromcit y j to city k is
+sjk and the distance fromci ty j to city 0 is sj0.
+2.14. Show that 1 | brkdwn, prmp | 
+wjCj reduces to 1 | rj, prmp | 
+wjCj .
+2.15. Show that 1 | pj = 1 |
+
+wjTj and 1 | pj = 1 | Lmax are equivalent
+to the assignment problem(see Appendix A for a definition of the assignment
+problem).
+2.16. Show that Pm | pj = 1 | 
+wjTj and Pm | pj = 1 | Lmax are equivalent
+to the transportation problem(see Appendix A for a definition of the
+transportation problem).
+2.17. Consider P || Cmax. Show that for any non-delay schedule the following
+inequalities hold:
+
+pj
+m
+≤ Cmax ≤ 2 × max
+
+p1, . . . , pn,
+
+pj
+m
+
+.
+2.18. Show how Pm | Mj | γ reduces to Rm || γ.
+2.19. Show that F2 | block | Cmax is equivalent to F2 | nwt | Cmax and show
+that both problems are special cases of 1 | sjk | Cmax and therefore special cases
+of the Travelling Salesman Problem.
+32 2 Deterministic Models: Preliminaries
+2.20. Consider an instance of Om | β | γ and an instance of Fm | β | γ. The
+two instances have the same number of machines, the same number of jobs, and
+the jobs have the same processing times on the m machines. The two instances
+are completely identical with the exception that one instance is an open shop
+and the other instance a flow shop. Show that the value of the objective under
+the optimal sequence in the flow shop is at least as large as the value of the
+objective under the optimal sequence in the open shop.
+2.21. Consider O2 || Cmax. Show that
+Cmax ≥ max
+n
+j=1
+p1j ,
+n
+j=1
+p2j
+
+.
+Find an instance of this problem where the optimal makespan is strictly larger
+than the RHS.
+2.22. Describe the complexity relationships between the problems
+(i) 1 || 
+wjCj ,
+(ii) 1 | dj = d | 
+wjTj ,
+(iii) 1 | pj = 1 | 
+wjTj ,
+(iv) 1 ||
+
+wjTj,
+(v) Pm | pj = 1 | 
+wjTj ,
+(vi) Pm ||
+
+wjTj .
+2.23. Show that α | β | Lmax reduces to α | β | 
+Tj as well as to α | β | 
+Uj .
+(Hint: Note that if the minimum Lmax is zero, the optimal solution with regard
+to
+
+Uj and
+
+Tj is zero as well. It suffices to show that a polynomial time
+procedure for α | β | 
+Uj can be adapted easily for application to α | β | Lmax.
+This can be done through a parametric analysis on the dj , i.e., solve α | β | 
+Uj
+with due dates dj + z and vary z.)
+Comments and References
+One of the first classification schemes for scheduling problems appeared in Conway,
+Maxwell and Miller (1967). Lawler, Lenstra and Rinnooy Kan (1982), in
+their survey paper, modified and refined this scheme extensively. Herrmann,
+Lee and Snowdon (1993) made another round of extensions. The framework
+presented here is another variation of the Lawler, Lenstra and Rinnooy Kan
+(1982) notation, with a slightly different emphasis.
+For a survey of scheduling problems subject to availability constraints
+(brkdwn), see Lee (2004) For surveys on scheduling problems with non-regular
+objective functions, see Raghavachari (1988) and Baker and Scudder (1990).
+For a survey of scheduling problems with job families and scheduling problems
+with batch processing, see Potts and Kovalyov (2000).
+Comments and References 33
+The definitions of non-delay, active, and semi-active schedules have been
+around for a long time; see, for example, Giffler and Thompson (1960) and
+French (1982) for a comprehensive overview of classes of schedules. Example
+2.3.2, which illustrates some of the anomalies of non-delay schedules, is
+due to Graham( 1966).
+The complexity hierarchy of scheduling problems is motivated primarily by
+the work of Rinnooy Kan (1976), Lenstra (1977), Lageweg, Lawler, Lenstra
+and Rinnooy Kan (1981, 1982) and Lawler, Lenstra, Rinnooy Kan and Shmoys
+(1993). For more on reducibility in scheduling, see Timkovsky (2000
+
+
+
+Chapter 5
+Parallel Machine Models
+(Deterministic)
+5.1 The Makespan without Preemptions . . . . . . . . . . . . . . . 112
+5.2 The Makespan with Preemptions . . . . . . . . . . . . . . . . . . 122
+5.3 The Total Completion Time without Preemptions . . . 130
+5.4T he Total Completion Time with Preemptions . . . . . . 134
+5.5 Due Date Related Objectives . . . . . . . . . . . . . . . . . . . . . 136
+5.6 Online Scheduling . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 138
+5.7 Discussion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14 2
+A bank of machines in parallel is a setting that is important from both a theoretical
+and a practical point of view. Froma theoretical point of view it is
+a generalization of the single machine, and a special case of the flexible flow
+shop. Froma practical point of view, it is important because the occurrence of
+resources in parallel is common in the real world. Also, techniques for machines
+in parallel are often used in decomposition procedures for multi-stage systems.
+In this chapter several objectives are considered. The three principal objectives
+are the minimization of the makespan, the total completion time, and the
+maximum lateness. With a single machine the makespan objective is usually
+only of interest when there are sequence dependent setup times; otherwise the
+makespan is equal to the sum of the processing times and is independent of
+the sequence. When dealing with machines in parallel the makespan becomes
+an objective of considerable interest. In practice, one often has to deal with
+the problem of balancing the load on machines in parallel; by minimizing the
+makespan the scheduler ensures a good balance.
+One may actually consider the scheduling of parallel machines as a two step
+process. First, one has to determine which jobs have to be allocated to which
+machines; second, one has to determine the sequence of the jobs allocated to
+each machine. With the makespan objective only the allocation process is important.
+M.L. Pinedo, Scheduling, DOI: 10.1007/978-0-387-78935-4 111
+
+c Springer Science+Business Media, LLC 2008
+5,
+112 5P arallel Machine Models (Deterministic)
+With parallel machines, preemptions play a more important role than with
+a single machine. With a single machine preemptions usually only play a role
+when jobs are released at different points in time. In contrast, with machines
+in parallel, preemptions are important even when all jobs are released at the
+same time.
+For most models considered in this chapter there are optimal schedules that
+are non-delay. However, if there are unrelated machines in parallel and the total
+completion time must be minimized without preemptions, then the optimal
+schedule may not be non-delay.
+Most models considered in this chapter fall in the category of the so-called
+offline scheduling problems. In an offline scheduling problem all data (e.g., processing
+times, release dates, due dates) are known in advance and can be taken
+into account in the optimization process. In contrast, in an online scheduling
+problem, the problem data are not known a priori. The processing time of a
+job only becomes known the moment it is completed and a release date only
+becomes known the moment a job is released. Clearly, the algorithms for online
+scheduling problems tend to be quite different from the algorithms for offline
+scheduling problems. The last section in this chapter focuses on online scheduling
+of parallel machines.
+The processing characteristics and constraints considered in this chapter include
+precedence constraints as well as the set functions Mj . Throughout this
+chapter it is assumed that p1 ≥ · · · ≥ pn.
+5.1 The Makespan without Preemptions
+First, the problem Pm || Cmax is considered. This problemis of interest because
+minimizing the makespan has the effect of balancing the load over the various
+machines, which is an important objective in practice.
+It is easy to see that P2 || Cmax is NP-hard in the ordinary sense as it is
+equivalent to PARTITION (see Appendix D). During the last couple of decades
+many heuristics have been developed for Pm || Cmax. One such heuristic is
+described below.
+The Longest Processing Time first (LPT) rule assigns at t = 0 the m longest
+jobs to the m machines. After that, whenever a machine is freed the longest
+job among those not yet processed is put on the machine. This heuristic tries
+to place the shorter jobs more towards the end of the schedule, where they can
+be used for balancing the loads.
+In the next theorema n upper bound is presented for
+Cmax(LPT )
+Cmax(OPT) ,
+where Cmax(LPT ) denotes the makespan of the LPT schedule and Cmax(OPT)
+denotes the makespan of the (possibly unknown) optimal schedule. This type
+5.1 The Makespan without Preemptions 113
+of worst case analysis is of interest as it gives an indication of how well the
+heuristic is guaranteed to performa s well as the type of instances for which the
+heuristic performs badly.
+Theorem 5.1.1. For Pm || Cmax
+Cmax(LPT )
+Cmax(OPT)
+≤ 4
+3
+− 1
+3m
+.
+Proof. By contradiction. Assume that there exists one or more counterexamples
+with the ratio strictly larger than 4/3−1/3m. If more than one such counterexample
+exist, there must exist an example with the smallest number of jobs.
+Consider this “smallest” counterexample and assume it has n jobs. This
+smallest counterexample has a useful property: under LPT the shortest job is
+the last job to start its processing and also the last job to finish its processing.
+That this is true can be seen as follows: first, under LPT by definition
+the shortest job is the last to start its processing. Also, if this job is not the
+last to complete its processing, the deletion of this smallest job will result in a
+counterexample with fewer jobs (the Cmax(LPT ) remains the same while the
+Cmax(OPT) may remain the same or may decrease). So for the smallest counterexample
+the starting time of the shortest job under LPT is Cmax(LPT )−pn.
+Since at this point in time all other machines are still busy it follows that
+Cmax(LPT ) − pn ≤
+n−1
+j=1 pj
+m
+.
+The right hand side is an upper bound on the starting time of the shortest job.
+This upper bound is achieved when scheduling the first n−1 jobs according to
+LPT results in each machine having exactly the same amount of processing to
+do. Now
+Cmax(LPT ) ≤ pn +
+n−1
+j=1 pj
+m
+= pn(1 − 1
+m
+) +
+n
+j=1 pj
+m
+.
+Since
+Cmax(OPT) ≥
+n
+j=1 pj
+m
+the following series of inequalities holds for the counterexample:
+4
+3
+− 1
+3m
+<
+Cmax(LPT )
+Cmax(OPT)
+≤
+pn(1 − 1/m) +
+n
+j=1 pj/m
+Cmax(OPT)
+= pn(1 − 1/m)
+Cmax(OPT)
++
+n
+j=1 pj/m
+Cmax(OPT)
+≤ pn(1 − 1/m)
+Cmax(OPT)
++ 1.
+114 5P arallel Machine Models (Deterministic)
+Thus
+4
+3
+− 1
+3m
+<
+pn(1 − 1/m)
+Cmax(OPT)
++ 1
+and
+Cmax(OPT) < 3pn.
+Note that this last inequality is a strict inequality. This implies that for the
+smallest counterexample the optimal schedule may result in at most two jobs
+on each machine. It can be shown that if an optimal schedule is a schedule with
+at most two jobs on each machine then the LPT schedule is optimal and the ratio
+of the two makespans is equal to one (see Exercise 5.11.b). This contradiction
+completes the proof of the theorem. 	
+
+Example 5.1.2 (A Worst Case Example of LPT)
+Consider 4 parallel machines and 9 jobs, whose processing times are given in
+the table below:
+jobs 1 2 3 4 5 6 7 8 9
+pj 7 7 6 6 5 5 4 4 4
+Scheduling the jobs according to LPT results in a makespan of 15. It can
+be shown easily that for this set of jobs a schedule can be found with a
+makespan of 12 (see Figure 5.1). This particular instance is thus a worst case
+when there are 4 machines in parallel. ||
+What would the worst case be, if instead of LPT an arbitrary priority rule
+is used? Consider the case where at time t = 0 the jobs are put in an arbitrary
+list. Whenever a machine is freed the job that ranks, among the remaining jobs,
+highest on the list is put on the machine. It can be shown that the worst case
+of this arbitrary list rule satisfies the inequality
+Cmax(LIST )
+Cmax(OPT)
+≤ 2 − 1
+m
+.
+(This result can be shown via arguments that are similar to the proof of Theorem5
+.6.1 in the section on online scheduling.)
+However, there are also several other heuristics for the Pm || Cmax problem
+that are more sophisticated than LPT and that have tighter worst-case bounds.
+These heuristics are beyond the scope of this book.
+Consider now the same problem with the jobs subject to precedence constraints,
+i.e., Pm | prec | Cmax. Froma complexity point of view this problem
+has to be at least as hard as the problemwithout precedence constraints. To
+obtain some insights into the effects of precedence constraints, a number of
+special cases have to be considered. The special case with a single machine
+5.1 The Makespan without Preemptions 115
+0 4 8 12 16
+4
+3
+5
+6
+2
+1
+Cmax(LPT) = 15
+7
+8 9
+t
+0 4 8 12
+7 8
+3
+9
+4
+2
+1
+Cmax(OPT) = 12
+5
+6
+t
+Fig. 5.1 Worst case example of LPT
+is clearly trivial. It is enough to keep the machine continuously busy and the
+makespan will be equal to the sum of the processing times. Consider the special
+case where there are an unlimited number of machines in parallel, or where
+the number of machines is at least as large as the number of jobs, i.e., m ≥ n.
+This problemm ay be denoted by P∞ | prec | Cmax. This is a classical problem
+in the field of project planning and its study has led to the development of
+the well-known Critical Path Method (CPM) and Project Evaluation and Review
+Technique (PERT). The optimal schedule and the minimum makespan are
+determined through a very simple algorithm.
+Algorithm 5.1.3 (Minimizing the Makespan of a Project)
+Schedule the jobs one at a time starting at time zero. Whenever a job has been
+completed, start all jobs of which all predecessors have been completed (that
+is, all schedulable jobs.) ||
+That this algorithml eads to an optimal schedule can be shown easily. The
+proof is left as an exercise. It turns out that in P∞ | prec | Cmax the start of
+the processing of some jobs usually can be postponed without increasing the
+makespan. These jobs are referred to as the slack jobs. The jobs that cannot be
+postponed are referred to as the critical jobs. The set of critical jobs is referred to
+116 5P arallel Machine Models (Deterministic)
+1 2
+4 5
+6 7
+8 9
+3
+Fig. 5.2 Precedence constraints graph with critical path in
+Example 5.1.4
+as the critical path(s). In order to determine the critical jobs, perform the same
+procedure applied in Algorithm5. 1.3 backwards. Start at the makespan, which
+is now known, and work towards time zero, while adhering to the precedence
+relationships. Doing this, all jobs are completed at the latest possible completion
+times and therefore started at their latest possible starting times as well. Those
+jobs whose earliest possible starting times are equal to their latest possible
+starting times are the critical jobs.
+Example 5.1.4( Minimizing the Makespan of a Project)
+Consider nine jobs with the following processing times.
+jobs 1 2 3 4 5 6 7 8 9
+pj 4 9 3 3 6 8 8 12 6
+The precedence constraints are depicted in Figure 5.2.
+The earliest completion time C
+j of job j can be computed easily.
+jobs 1 2 3 4 5 6 7 8 9
+C
+j 4 13 3 6 12 21 32 24 30
+This implies that the makespan is 32. Assuming that the makespan is 32,
+the latest possible completion times C
+j can be computed.
+jobs 1 2 3 4 5 6 7 8 9
+C
+j 7 16 3 6 12 24 32 24 32
+Those jobs of which the earliest possible completion times are equal to the
+latest possible completion times are said to be on the critical path. So the
+critical path is the chain
+3 → 4 → 5 → 8 → 7.
+5.1 The Makespan without Preemptions 117
+Level 5
+Level 4
+Level 3
+Level 2
+Level 1
+Level 5
+Level 4
+Level 3
+Level 2
+Level 1
+Fig. 5.3 Intree and outtree
+The critical path in this case happens to be unique. The jobs that are not
+on the critical path are said to be slack. The amount of slack time for job j
+is the difference between its latest possible completion time and its earliest
+possible completion time. ||
+In contrast to 1 | prec | Cmax and P∞ | prec | Cmax, the Pm | prec |
+Cmax is strongly NP-hard when 2 ≤ m < n. Even the special case with all
+processing times equal to 1, i.e., Pm | pj = 1, prec | Cmax, is not easy. However,
+constraining the problemf urther and assuming that the precedence graph takes
+the formof a tree (either an intree or an outtree) results in a problem, i.e.,
+Pm | pj = 1, tree | Cmax, that is easily solvable. This particular problemlea ds
+to a well-known scheduling rule, the Critical Path (CP) rule, which gives the
+highest priority to the job at the head of the longest string of jobs in the
+precedence graph (ties may be broken arbitrarily).
+Before presenting the results concerning Pm | pj = 1, tree | Cmax it is
+necessary to introduce some notation. Consider an intree. The single job with
+no successors is called the root and is located at level 1. The jobs immediately
+preceding the root are at level 2; the jobs immediately preceding the jobs at
+level 2 are at level 3, and so on. In an outtree all jobs with no successors
+are located at level 1. Jobs that have only jobs at level 1 as their immediate
+successors are said to be at level 2; jobs that have only jobs at levels 1 and 2 as
+their immediate successors are at level 3, and so on (see Figure 5.3). From this
+definition it follows that the CP rule is equivalent to the Highest Level first rule.
+The number of jobs at level l is denoted by N(l). Jobs with no predecessors are
+referred to as starting jobs; the nodes in the graph corresponding to these jobs
+are often referred to in graph theory terminology as leaves. The highest level in
+the graph is denoted by lmax. Let
+H(lmax + 1 − r) =
+r
+k=1
+N(lmax + 1 − k).
+118 5P arallel Machine Models (Deterministic)
+Clearly, H(lmax +1−r) denotes the total number of nodes at level lmax +1−r
+or higher, that is, at the highest r levels.
+Theorem 5.1.5. The CP rule is optimal for Pm | pj = 1, intree | Cmax
+and for Pm | pj = 1, outtree | Cmax.
+Proof. The proof for intrees is slightly harder than the proof for outtrees. In
+what follows only the proof for intrees is given (the proof for outtrees is left as
+an exercise). In the proof for intrees a distinction has to be made between two
+cases.
+Case I. Assume the tree satisfies the following condition:
+max
+r
+r
+k=1 N(lmax + 1 − k)
+r
+
+≤ m.
+In this case, in every time interval, all the jobs available for processing can be
+processed and at most lmax time units are needed to complete all the jobs under
+the CP rule. But lmax is clearly a lower bound for Cmax. So the CP rule results
+in an optimal schedule.
+Case II. Find for the tree the (smallest) integer c ≥ 1 such that
+max
+r
+r
+k=1 N(lmax + 1 − k)
+r + c
+
+≤ m < max
+r
+r
+k=1 N(lmax + 1 − k)
+r + c − 1
+
+.
+The c basically represents the smallest amount of time beyond time r needed
+to complete all jobs at the r highest levels. Let
+max
+r
+r
+k=1 N(lmax + 1 − k)
+r + c − 1
+
+=
+r
+∗
+k=1 N(lmax + 1 − k)
+r∗ + c − 1
+
+>m.
+The number of jobs completed at time (r∗+c−1) is at most m(r∗+c−1). The
+num ber of jobs at levels higher than or equal to lmax+1−r∗ is
+r
+∗
+k=1 N(lmax+
+1 − k). As
+r
+∗
+k=1
+N(lmax + 1 − k) > (r
+∗ + c − 1)m
+there is at least one job at a level equal to or higher than lmax + 1 − r∗ that
+is not processed by time r∗ + c − 1. Starting with this job there are at least
+lmax +1−r∗ time units needed to complete all the jobs. A lower bound for the
+makespan under any type of scheduling rule is therefore
+Cmax ≥ (r
+∗ + c − 1) + (lmax + 1 − r
+∗) = lmax + c.
+To complete the proof it suffices to show that the CP rule results in a makespan
+that is equal to this lower bound. This part of the proof is left as an exercise
+(see Exercise 5.14). 	
+
+5.1 The Makespan without Preemptions 119
+1 4
+2 5
+3 6
+Fig. 5.4 Worst case example of the CP rule for two machines
+(Example 5.1.6)
+The question arises: how well does the CP rule performf or arbitrary precedence
+constraints when all jobs have equal processing times? It has been shown
+that for two machines in parallel
+Cmax(CP)
+Cmax(OPT)
+≤ 4
+3.
+When there are more than two machines in parallel, the worst case ratio is
+larger. That the worst case bound for two machines can be attained is shown
+in the following example.
+Example 5.1.6 (A Worst-Case Example of CP)
+Consider 6 jobs with unit processing times and two machines. The precedence
+relationships are depicted in Figure 5.4. Jobs 4, 5 and 6 are at level 1, while
+jobs 1, 2 and 3 are at level 2. As under the CP rule ties may be broken
+arbitrarily, a CP schedule may prescribe at time zero to start with jobs 1
+and 2. At their completion only job 3 can be started. At time 2 jobs 4 and 5
+are started. Job 6 goes last and is completed by time 4. Of course, an optimal
+schedule can be obtained by starting out at time zero with jobs 2 and 3. The
+makespan then equals 3. ||
+Example 5.1.6 shows that processing the jobs with the largest number of
+successors first may result in a better schedule than processing the jobs at the
+highest level first. A priority rule often used when jobs are subject to arbitrary
+precedence constraints is indeed the so-called Largest Number of Successors first
+(LNS) rule. Under this rule the job with the largest total number of successors
+(not just the immediate successors) in the precedence constraints graph has the
+highest priority. Note that in the case of intrees the CP rule and the LNS rule
+are equivalent; the LNS rule therefore results in an optimal schedule in the case
+of intrees. It can be shown fairly easily that the LNS rule is also optimal for
+Pm | pj = 1, outtree | Cmax. The following example shows that the LNS rule
+may not yield an optimal schedule with arbitrary precedence constraints.
+120 5P arallel Machine Models (Deterministic)
+1 2 3
+4 5
+6
+Fig. 5.5 The LNS rule is not necessarily optimal with arbitrary
+precedence constraints (Example 5.1.7)
+Example 5.1.7 (Application of the LNS rule)
+Consider 6 jobs with unit processing times and two machines. The precedence
+constraints are depicted in Figure 5.5. The LNS rule may start at time 0 with
+jobs 4 and 6. At time 1 jobs 1 and 5 start. Job 2 starts at time 2 and job
+3 starts at time 3. The resulting makespan is 4. It is easy to see that the
+optimal makespan is 3 and that the CP rule actually achieves the optimal
+makespan. ||
+Both the CP rule and the LNS rule have more generalized versions that
+can be applied to problems with arbitrary job processing times. Instead of
+counting the number of jobs (as in the case with unit processing times), these
+more generalized versions prioritize based on the total amount of processing
+remaining to be done on the jobs in question. The CP rule then gives the
+highest priority to the job that is heading the string of jobs with the largest
+total amount of processing (with the processing time of the job itself also being
+included in this total). The generalization of the LNS rule gives the highest
+priority to that job that precedes the largest total amount of processing; again
+the processing time of the job itself is also included in the total. The LNS name
+is clearly not appropriate for this generalization with arbitrary processing times,
+as it refers to a number of jobs rather than to a total amount of processing.
+Another generalization of the Pm || Cmax problemt hat is of practical interest
+arises when job j is only allowed to be processed on subset Mj of the m parallel
+machines. Consider Pm | pj = 1,Mj | Cmax and assume that the sets Mj are
+nested, that is, one and only one of the following four conditions holds for jobs
+j and k.
+(i) Mj is equal to Mk (Mj = Mk)
+(ii) Mj is a subset of Mk (Mj ⊂ Mk)
+(iii) Mk is a subset of Mj (Mk ⊂ Mj)
+(iv) Mj and Mk do not overlap (Mj ∩Mk = ∅)
+5.1 The Makespan without Preemptions 121
+Under these conditions a well-known dispatching rule, the Least Flexible Job
+first (LFJ) rule, plays an important role. The LFJ rule selects, every time a
+machine is freed, among the available jobs the job that can be processed on the
+smallest number of machines, i.e., the least flexible job. Ties may be broken
+arbitrarily. This rule is rather crude as it does not specify, for example, which
+machine should be considered first when several machines become available at
+the same time.
+Theorem 5.1.8. The LFJ rule is optimal for Pm | pj = 1,Mj | Cmax
+when the Mj sets are nested.
+Proof. By contradiction. Suppose the LFJ rule does not yield an optimal schedule.
+Consider a schedule that is optimal, and that differs from a schedule that
+could have been generated via the LFJ rule. Without loss of generality, the jobs
+on each machine can be ordered in increasing order of | Mj |. Now consider the
+earliest time slot that is filled by a job that could not have been placed there by
+the LFJ rule. Call this job job j. There exists som e job, say job j∗, that is scheduled
+to start later, and that could have been scheduled by LFJ in the position
+taken by job j. Note that job j∗ is less flexible than job j (since Mj ⊃ Mj∗ ).
+Job j∗ cannot start before job j, since j is the earliest non-LFJ job. It cannot
+start at the same time as job j, for in that case job j is in a position where
+LFJ could have placed it. These two jobs, j and j∗, can be exchanged without
+altering Cmax, since pj = 1 for all jobs. Note that the slot previously filled by
+j is now filled by j∗, which is an LFJ position. By repeating this process of
+swapping the earliest non-LFJ job, all jobs can be moved into positions where
+they could have been placed using LFJ, without increasing Cmax. So it is possible
+to construct an LFJ schedule froma n optimal schedule. This establishes
+the contradiction. 	
+
+It can be shown easily that the LFJ rule is optimal for P2 | pj = 1,Mj | Cmax
+because with two machines the Mj sets are always nested. However, with three
+or more machines the LFJ rule may not yield an optimal solution for Pm | pj =
+1,Mj | Cmax with arbitrary Mj , as illustrated in the following example.
+Example 5.1.9 (Application of the LFJ Rule)
+Consider P4 | pj = 1,Mj | Cmax with eight jobs. The eight Mj sets are:
+M1 = {1, 2}
+M2 = M3 = {1, 3, 4}
+M4 = {2}
+M5 = M6 = M7 = M8 = {3, 4}
+The Mj sets are clearly not nested. Under the LFJ rule the machines can
+be considered in any order. Consider machine 1 first. The least flexible job
+that can be processed on machine 1 is job 1 as it can be processed on only
+122 5P arallel Machine Models (Deterministic)
+two machines (jobs 2 and 3 can be processed on three machines). Consider
+machine 2 next. The least flexible job to be processed on machine 2 is clearly
+job 4. Least flexible jobs to be processed on machines 3 and 4 at time 0
+could be jobs 5 and 6. At time 1, after jobs 1, 4, 5 and 6 have completed
+their processing on the four machines, the least flexible job to be processed
+on machine 1 is job 2. However, at this point none of the remaining jobs can
+be processed on machine 2; so machine 2 remains idle. The least flexible jobs
+to go on machines 3 and 4 are jobs 7 and 8. This implies that job 3 only can
+be started at time 2, completing its processing at time 3. The makespan is
+therefore equal to 3.
+A better schedule with a makespan equal to 2 can be obtained by assigning
+jobs 2 and 3 to machine 1; jobs 1 and 4 to machine 2; jobs 5 and 6 to machine 3
+and jobs 7 and 8 to machine 4. ||
+From Example 5.1.9 one may expect that, if a number of machines are free
+at the same point in time, it is advantageous to consider first the least flexible
+machine. The flexibility of a machine could be defined as the number of remaining
+jobs that can be processed (or the total amount of processing that can
+be done) on that machine. Assigning at each point in time first a job, any job,
+to the Least Flexible Machine (LFM), however, does not guarantee an optimal
+schedule in the case of Example 5.1.9.
+Heuristics can be designed that combine the LFJ rule with the LFM rule,
+giving priority to the least flexible jobs on the least flexible machines. That is,
+consider at each point in time first the Least Flexible Machine (LFM) (that is,
+the machine that can process the smallest number of jobs) and assign to this
+machine the least flexible job that can be processed on it. Any ties may be
+broken arbitrarily. This heuristic may be referred to as the LFM-LFJ heuristic.
+However, in the case of Example 5.1.9 the LFM-LFJ does not yield an optimal
+schedule either.
+5.2 The Makespan with Preemptions
+Consider the same problem as the one discussed in the beginning of the previous
+section, but now with preemptions allowed, i.e., Pm | prmp | Cmax. Usually, but
+not always, allowing preemptions simplifies the analysis of a problem. This is
+indeed the case for this problemwher e it actually turns out thatmany schedules
+are optimal. First, consider the following linear programming formulation of the
+problem.
+minimize Cmax
+subject to
+5.2 The Makespan with Preemptions 123
+m
+i=1
+xij = pj , j = 1, . . . , n
+m
+i=1
+xij ≤ Cmax, j = 1, . . . , n
+n
+j=1
+xij ≤ Cmax, i = 1, . . .,m
+xij ≥ 0, i = 1, . . .,m, j = 1, . . . , n.
+The variable xij represents the total time job j spends on machine i. The
+first set of constraints makes sure that each job receives the required amount
+of processing. The second set of constraints ensures that the total amount of
+processing each job receives is less than or equal to the makespan. The third
+set makes sure that the total amount of processing on each machine is less
+than the makespan. Since the Cmax basically is a decision variable and not an
+element of the resource vector of the linear program, the second and third set
+of constraints may be rewritten as follows:
+Cmax −
+m
+i=1
+xij ≥ 0, j= 1, . . . , n
+Cmax −
+n
+j=1
+xij ≥ 0, i= 1, . . . , m
+Example 5.2.1 (LP Formulation for Minimizing Makespan with
+Preemptions)
+Consider two machines and three jobs with p1 = 8, p2 = 7 and p3 = 5.
+There are thus 7 variables, namely x11, x21, x12, x22, x13, x23 and Cmax
+(see Appendix A). The A matrix is a matrix of 0’s and 1’s. The ¯c vector
+contains six 0’s and a single 1. The ¯b vector contains the three processing
+times and five 0’s. ||
+This LP can be solved in polynomial time, but the solution of the LP does
+not prescribe an actual schedule; it merely specifies the amount of time job
+j should spend on machine i. However, with this information a schedule can
+easily be constructed.
+There are several other algorithms for Pm | prmp | Cmax. One of these
+algorithms is based on the fact that it is easy to obtain an expression for the
+makespan under the optimal schedule. In the next lemma a lower bound is
+established.
+124 5P arallel Machine Models (Deterministic)
+Lemma 5.2.2. Under the optimal schedule for Pm | prmp | Cmax
+Cmax ≥ max
+
+p1,
+n
+j=1
+pj/m
+
+= C
+∗
+max.
+Proof. Recall that job 1 is the job with the longest processing time. The proof
+is easy and left as an exercise. 	
+
+Having a lower bound allows for the construction of a very simple algorithm
+that minimizes the makespan. The fact that this algorithm actually produces
+a schedule with a makespan that is equal to the lower bound shows that the
+algorithmyi elds an optimal schedule.
+Algorithm 5.2.3 (Minimizing Makespan with Preemptions)
+Step 1.
+Take the n jobs and process them one after another on a single machine
+in any sequence. The makespan is then equal to the sum of the n
+processing times and is less than or equal to mC∗
+max.
+Step 2.
+Take this single machine schedule and cut it into m parts. The first part
+constitutes the interval [ 0, C∗
+max ] , the second part the interval
+[ C∗
+max, 2C∗
+max ] , the third part the interval [ 2C∗
+max, 3C∗
+max ] , etc.
+Step 3.
+Take as the schedule for machine 1 in the bank of parallel machines
+the processing sequence of the first interval; take as the schedule for
+machine 2 the processing sequence of the second interval, and so on. ||
+It is obvious that the resulting schedule is feasible. Part of a job may appear
+at the end of the schedule for machine i, while the remaining part may appear
+at the beginning of the schedule for machine i + 1. As preemptions are allowed
+and the processing time of each job is less than C∗
+max such a schedule is feasible.
+As this schedule has Cmax = C∗
+max, it is also optimal.
+Another schedule that may appear appealing for Pm | prmp | Cmax is the
+Longest Remaining Processing Time first (LRPT) schedule. This schedule is the
+preemptive counterpart of the (nonpreemptive) LPT schedule. It is a schedule
+that is structurally appealing, but mainly of academic interest. From a theoretical
+point of view it is important because of similarities with optimal policies in
+stochastic scheduling (see Chapter 12). Froma practical point of view it has a
+serious drawback. The number of preemptions needed in the deterministic case
+is usually infinite.
+Example 5.2.4( Application of the LRPT Rule)
+Consider 2 jobs with unit processing times and a single machine. Under
+LRPT the two jobs continuously have to rotate and wait for their next turn
+5.2 The Makespan with Preemptions 125
+on the machine (that is, a job stays on the machine for a time period 4
+and after every time period 4 the job waiting preempts the machine). The
+makespan is equal to 2 and is, of course, independent of the schedule. But
+note that the sum of the two completion times under LRPT is 4, while under
+the nonpreemptive schedule it is 3. ||
+In the subsequent lemma and theorem a proof technique is used that is
+based on a discrete time framework. All processing times are assumed to be
+integer and the decision-maker is allowed to preempt any machine only at integer
+times 1, 2, . . . The proof that LRPT is optimal is based on a dynamic
+programming induction technique that requires some special notation. Assume
+that at some integer time t the remaining processing times of the n jobs are
+p1(t), p2(t), . . . , pn(t). Let ¯p(t) denote this vector of processing times. In the
+proof two different vectors of remaining processing times at time t, say ¯p(t)
+and ¯q(t), are repeatedly compared to one another. The vector ¯p(t) is said to
+majorize the vector ¯q(t), ¯p(t) ≥m ¯q(t), if
+k
+j=1
+p(j)(t) ≥
+k
+j=1
+q(j)(t),
+for all k = 1, . . . , n, where p(j)(t) denotes the jth largest element of vector
+¯p(t) and q(j)(t) denotes the jth largest element of vector ¯q(t).
+Example 5.2.5 (Vector Majorization)
+Consider the two vectors ¯p(t) = (4,8,2,4) and ¯q(t) = (3,0,6,6). Rearranging
+the elements within each vector and putting these in decreasing order results
+in vectors (8,4,4,2) and (6,6,3,0). It can be verified easily that ¯p(t) ≥m ¯q(t).
+||
+Lemma 5.2.6. If ¯p(t) >m ¯q(t) then LRPT applied to ¯p(t) results in a
+makespan that is larger than or equal to the makespan obtained by applying
+LRPT to ¯q(t).
+Proof. The proof is by induction on the total amount of remaining processing.
+In order to show that the lemma holds for ¯p(t) and ¯q(t), with total remaining
+processing time
+n
+j=1 pj(t) and
+n
+j=1 qj(t) respectively, assume as induction
+hypothesis that the lemma holds for all pairs of vectors with total remaining
+processing less than or equal to
+n
+j=1 pj(t) − 1 and
+n
+j=1 qj(t) − 1 respectively.
+The induction base can be checked easily by considering the two vectors
+1, 0, . . . ,0 and 1, 0, . . . , 0.
+If LRPT is applied for one time unit on ¯p(t) and ¯q(t), respectively, then the
+vectors of remaining processing times at time t + 1 are ¯p(t + 1) and ¯q(t + 1),
+respectively. Clearly,
+n
+j=1
+p(j)(t + 1) ≤
+n
+j=1
+p(j)(t) − 1
+126 5P arallel Machine Models (Deterministic)
+and
+n
+j=1
+q(j)(t + 1) ≤
+n
+j=1
+q(j)(t) − 1.
+It can be shown that if ¯p(t) ≥m ¯q(t), then ¯p(t + 1) ≥m ¯q(t + 1). So if LRPT
+results in a larger makespan at time t + 1 because of the induction hypothesis,
+it also results in a larger makespan at time t.
+It is clear that if there are less than m jobs remaining to be processed, the
+lemma holds. 	
+
+Theorem 5.2.7. LRPT yields an optimal schedule for Pm | prmp | Cmax
+in discrete time.
+Proof. The proof is based on induction as well as on contradiction arguments.
+The first step of the induction is shown as follows. Suppose not more than
+m jobs have processing times remaining and that these jobs all have only one
+unit of processing time left. Then clearly LRPT is optimal.
+Assume LRPT is optimal for any vector ¯p(t) for which
+n
+j=1
+p(j)(t) ≤ N − 1.
+Consider now a vector ¯p(t) for which
+n
+j=1
+p(j)(t) = N.
+The induction is based on the total amount of remaining processing, N −1, and
+not on the time t.
+In order to show that LRPT is optimal for a vector of remaining processing
+times ¯p(t) with a total amount of remaining processing
+n
+j=1 pj(t) = N, assume
+that LRPT is optimal for all vectors with a smaller total amount of remaining
+processing. The proof of the induction step, showing that LRPT is optimal for
+¯p(t), is by contradiction. If LRPT is not optimal, another rule has to be optimal.
+This other rule does not act according to LRPT at time t, but fromtim e t +1
+onwards it must act according to LRPT because of the induction hypothesis
+(LRPT is optimal from t + 1 on as the total amount of processing remaining
+at time t + 1 is strictly less than N). Call this supposedly optimal rule, which
+between t and t + 1 does not act according to LRPT, LRPT. Now applying
+LRPT at time t on ¯p(t) must be compared to applying LRPT at time t on
+the sam e vector ¯p(t). Let ¯p(t+1) and ¯p(t+1) denote the vectors of remaining
+processing times at time t+1 after applying LRPT and LRPT. It is clear that
+¯p(t + 1) ≥m ¯p(t + 1). From Lemma 5.2.6 it follows that the makespan under
+LRPT is larger than the makespan under LRPT. This completes the proof of
+the induction step and the proof of the theorem. 	
+
+5.2 The Makespan with Preemptions 127
+0 5 10
+2 3
+1
+2 1 3
+3 2 1
+t
+Fig. 5.6 LRPT with three jobs on two machines with preemptions
+allowed at integer points in time (Example 5.2.8)
+0 5 10
+2 2, 3
+1
+1, 2, 3
+1, 2, 3
+t
+Fig. 5.7 LRPT with three jobs on two machines with preemptions
+allowed at any time (Example 5.2.9)
+Example 5.2.8 (Application of LRPT in Discrete Time)
+Consider two machines and three jobs, say jobs 1, 2 and 3, with processing
+times 8, 7 and 6. The schedule under LRPT is depicted in Figure 5.6 and
+the makespan is 11. ||
+That LRPT is also optimal in continuous time (resulting in an infinite number
+of preemptions) can be argued easily. Multiply all processing times by K,
+K being a very large integer. The problemin trinsically does not change, as the
+relative lengths of the processing times remain the same. The optimal policy is,
+of course, again LRPT. But now there may be many more preemptions (recall
+preemptions must occur at integral time units). Basically, multiplying all processing
+times by K has the effect that the time slots become smaller relative to
+the processing times and the decision-maker is allowed to preempt after shorter
+intervals. Letting K go to ∞ shows that LRPT is optimal in continuous time
+as well.
+Example 5.2.9 (Application of LRPT in Continuous Time)
+Consider the same jobs as in the previous example. As preemptions may be
+done at any point in time, processor sharing takes place, see Figure 5.7. The
+makespan is now 10.5. ||
+Consider the generalization to uniformm achines, that is, m machines in
+parallel with machine i having speed vi. Without loss of generality it may be
+assumed that v1 ≥ v2 ≥ · · · ≥ vm. Similar to Lemma 5.2.2 a lower bound can
+be established for the makespan here as well.
+128 5P arallel Machine Models (Deterministic)
+Lemma 5.2.10. Under the optimal schedule for Qm | prmp | Cmax
+Cmax ≥ max
+ p1
+v1
+,
+p1 + p2
+v1 + v2
+, . . . ,
+m−1
+j=1 pj m−1
+i=1 vi
+,
+n
+j=1 pj m
+i=1 vi
+
+Proof. The makespan has to be at least as large as the time it takes for the
+fastest machine to do the longest job. This time represents the first term within
+the “max” on the R.H.S. The makespan also has to be at least as large as the
+time needed for the fastest and second fastest machine to process the longest
+and second longest job while keeping the two machines occupied exactly the
+same amount of time. This amount of time represents the second term within
+the “max” expression. The remainder of the first m−1 terms are determined in
+the same way. The last term is a bit different as it is the minimum time needed
+to process all n jobs on the m machines while keeping all the m machines
+occupied exactly the same amount of time. 	
+
+If the largest termin the lower bound is determined by the sumo f the
+processing times of the k longest jobs divided by the sumof the speeds of the
+k fastest machines, then the n − k smallest jobs under the optimal schedule do
+not receive any processing on the k fastest machines; these jobs only receive
+processing on the m − k slowest machines.
+Example 5.2.11 (Minimizing Makespan on Uniform Machines)
+Consider three machines, 1, 2 and 3, with respective speeds 3, 2 and 1. There
+are three jobs, 1, 2 and 3, with respective processing times 36, 34 and 12. The
+optimal schedule assigns the two longest jobs to the two fastest machines.
+Job 1 is processed for 8 units of time on machine 1 and for 6 units of time
+on machine 2, while job 2 is processed for 8 units of time on machine 2 and
+for 6 units of time on machine 1. These two jobs are completed after 14 time
+units. Job 3 is processed only on machine 3 and is completed at time 12. ||
+A generalization of the LRPT schedule described before is the so-called
+Longest Remaining Processing Time on the Fastest Machine first (LRPT-FM)
+rule. This rule assigns, at any point in time, the job with the longest remaining
+processing time to the fastest machine; the job with the second longest
+remaining processing time to the second fastest machine, and so on.
+This rule typically requires an infinite number of preemptions. If at time t
+two jobs have the same remaining processing time and this processing time is
+the longest among the jobs not yet completed by time t, then one of the two
+jobs has to go on the fastest machine while the other has to go on the second
+fastest. At time t + 4, 4 being very small, the remaining processing time of the
+job on the second fastest machine is longer than the remaining processing time
+of the job on the fastest machine. So the job on the second fastest machine has
+to move to the fastest and vice versa. Thus the LRPT-FM rule often results in
+so-called processor sharing. A number of machines, say m∗, process a number
+5.2 The Makespan with Preemptions 129
+of jobs, say n∗, n∗ ≥ m∗; the machines allocate their total processing capability
+uniformly over the n∗ jobs and ensure that the remaining processing times of
+the n∗ jobs remain equal at all times.
+It can be shown that the LRPT-FM rule is indeed optimal for Qm | prmp |
+Cmax. It is again easier to construct first a proof of optimality in a discrete time
+framework and then extend the result to a continuous time setting. Assume
+that the processing times as well as the speeds are integers. Replace the original
+machine i that operates at speed vi by vi identical, so-called unit-speed, machines
+that operate at speed 1. A job may be processed for one time unit on a subset of
+the unit-speed machines that correspond to machine i. (It may not be processed
+at the same point in time by two unit-speed machines that do not correspond
+to the same original machine.)
+Assume that preemptions are only allowed at integer times 1, 2, 3, . . . If
+at time t job j has a remaining processing time pj , its remaining processing
+time at time t + 1 is equal to (pj − l) after being processed for one time unit
+on l unit-speed machines corresponding to the original machine i. Lemma 5.2.6
+can be shown for this framework as well. Based on this lemma the following
+theoremcan be shown.
+Theorem 5.2.12. LRPT-FM yields an optimal schedule for Qm | prmp |
+Cmax in discrete time.
+Example 5.2.13 (Application of the LRPT-FM Rule)
+Consider again 2 machines and three jobs. The processing times of the three
+jobs are again 8, 7 and 6. The two machines have now different speeds: v1 = 2
+and v2 = 1. The first machine can be replaced by two machines with speed 1.
+Note that a job may be processed simultaneously by machines 1 and 2, but
+not simultaneously by machines 1 and 3 or 2 and 3. These three machines may
+be scheduled as follows: Job 1 is assigned to the first two unit-speed machines
+for one time unit and job 2 is assigned to the third unit-speed machine for
+one time unit. At time 1, all three jobs have a remaining processing time
+equal to 6. So from time 1 on, each job occupies one unit-speed machine and
+the makespan is equal to 7. ||
+In order to show that LRPT-FM is also optimal in continuous time two
+limits have to be taken. First, all the processing times have to be multiplied
+by a large number K. In proportion to the new processing times a time unit
+is now very small. The possible number of preemptions goes up significantly
+this way, approaching preemptions in continuous time. Second, the speeds of
+the machines have to be multiplied with a large number as well. Thus the
+number of unit-speed machines for each original machine goes up dramatically.
+This implies that a finer partitioning of the processing capabilities of a given
+machine can be realized. Through such arguments it can be shown that LRPTFM
+is optimal in continuous time. In addition, it can be shown that applying
+LRPT-FM to the available jobs when the jobs have different release dates is
+optimal as well (i.e., Qm | rj, prmp | Cmax).
+130 5P arallel Machine Models (Deterministic)
+5.3The Total Completion Time without Preemptions
+Consider m machines in parallel and n jobs. Recall that p1 ≥ · · · ≥ pn. The
+objective to be minimized is the total unweighted completion time
+
+Cj. From
+Theorem3. 1.1 it follows that for a single machine the Shortest Processing Time
+first (SPT) rule minimizes the total completion time. This single machine result
+can also be shown in a different way fairly easily.
+Let p(j) denote the processing time of the job in the jth position in the
+sequence. The total completion time can then be expressed as
+
+Cj = np(1) + (n − 1)p(2) + · · · + 2p(n−1) + p(n).
+This implies that there are n coefficients n, n − 1, . . . , 1 to be assigned to n
+different processing times. The processing times have to be assigned in such a
+way that the sum of the products is minimized. From the elementary Hardy,
+Littlewood and Polya inequality as well as common sense it follows that the
+highest coefficient, n, is assigned the smallest processing time, pn, the second
+highest coefficient, n−1, is assigned the second smallest processing time, pn−1,
+and so on. This implies that SPT is optimal.
+This type of argument can be extended to the parallel machine setting as
+well.
+Theorem 5.3.1. The SPT rule is optimal for Pm || 
+Cj .
+Proof. In the case of parallel machines there are nm coefficients to which processing
+times can be assigned. These coefficients are m ns, m (n−1)s, . . . , m
+ones. The processing times have to be assigned to a subset of these coefficients
+in order to minimize the sum of the products. Assume that n/m is an integer. If
+it is not an integer add a number of dummy jobs with zero processing times so
+that n/m is integer (adding jobs with zero processing times does not change the
+problem; these jobs would be instantaneously processed at time zero and would
+not contribute to the objective function). It is easy to see, in a similar manner
+as above, that the set of m longest processing times have to be assigned to the
+m ones, the set of second m longest processing times have to be assigned to
+the m twos, and so on. This results in the m longest jobs each being processed
+on different machines and so on. That this class of schedules includes SPT can
+be shown as follows. According to the SPT schedule the smallest job has to go
+on machine 1 at time zero, the second smallest one on machine 2, and so on;
+the (m+1)th smallest job follows the smallest job on machine 1, the (m+2)th
+smallest job follows the second smallest on machine 2, and so on. It is easy to
+verify that the SPT schedule corresponds to an optimal assignment of jobs to
+coefficients. 	
+
+Fromthe proof of the theoremit is clear that the SPT schedule is not the
+only schedule that is optimal. Many more schedules also minimize the total
+completion time. The class of schedules that minimize the total completion
+time turns out to be fairly easy to characterize (see Exercise 5.21).
+5.3 The Total Completion Time without Preemptions 131
+As pointed out in the previous chapter the more general WSPT rule minimizes
+the total weighted completion time in the case of a single machine. Unfortunately,
+this result cannot be generalized to parallel machines, as shown in
+the following example.
+Example 5.3.2 (Application of the WSPT Rule)
+Consider two machines and three jobs.
+jobs 1 2 3
+pj 1 1 3
+wj 1 1 3
+Scheduling jobs 1 and 2 at time zero and job 3 at time 1 results in a total
+weighted completion time of 14, while scheduling job 3 at time zero and jobs
+1 and 2 on the other machine results in a total weighted completion time
+of 12. Clearly, with this set of data any schedule may be considered to be
+WSPT. However, making the weights of jobs 1 and 2 equal to 1 − 4 shows
+that WSPT does not necessarily yield an optimal schedule. ||
+It has been shown in the literature that the WSPT heuristic is nevertheless a
+very good heuristic for the total weighted completion time on parallel machines.
+A worst case analysis of this heuristic yields the lower bound
+
+wjCj(WSPT )
+wjCj(OPT) <
+1
+2
+(1 +
+√
+2).
+What happens now in the case of precedence constraints? The problem
+Pm | prec | 
+Cj is known to be strongly NP-hard in the case of arbitrary
+precedence constraints. However, the special case with all processing times equal
+to 1 and precedence constraints that take the formof an outtree can be solved
+in polynomial time. In this special case the Critical Path rule again minimizes
+the total completion time.
+Theorem 5.3.3. The CP rule is optimal for Pm | pj = 1, outtree | 
+Cj .
+Proof. Up to some integer point in time, say t1, the number of schedulable jobs
+is less than or equal to the number of machines. Under the optimal schedule, at
+each point in time before t1, all schedulable jobs have to be put on the machines.
+Such actions are in accordance with the CP rule. Time t1 is the first point in
+time when the number of schedulable jobs is strictly larger than m. There are
+at least m+ 1 jobs available for processing and each one of these jobs is at the
+head of a subtree that includes a string of a given length.
+The proof that applying CP from t1 is optimal is by contradiction. Suppose
+that after time t1 another rule is optimal. This rule must, at least once, prescribe
+132 5P arallel Machine Models (Deterministic)
+an action that is not according to CP. Consider the last point in time, say t2, at
+which this rule prescribes an action not according to CP. So at t2 there are m
+jobs, that are not heading the m longest strings, assigned to the m machines;
+from t2 + 1 the CP rule is applied. Call the schedule from t2 onwards CP. It
+suffices to show that applying CP from t2 onwards results in a schedule that is
+at least as good.
+Consider under CP the longest string headed by a job that is not assigned
+at t2, say string 1, and the shortest string headed by a job that is assigned at
+t2, say string 2. The job at the head of string 1 has to start its processing under
+CP at time t2 +1. Let C
+1 and C
+2 denote the completion times of the last jobs
+of strings 1 and 2, respectively, under CP. Under CP C
+1
+≥ C
+2. It is clear that
+under CP all m machines have to be busy at least up to C
+2
+−1. If C
+1
+≥ C
+2 +1
+and there are machines idle before C
+1
+− 1, the application of CP at t2 results
+in less idle time and a smaller total completion time. Under CP the last job of
+string 1 is completed one time unit earlier, yielding one more completed job at
+or before C
+1
+− 1. In other cases the total completion time under CP is equal
+to the total completion time under CP. This implies that CP is optimal from
+t2 on. As there is not then a last time for a deviation from CP, the CP rule is
+optimal. 	
+
+In contrast to the makespan objective the CP rule is, somewhat surprisingly,
+not necessarily optimal for intrees. Counterexamples can be found easily (see
+Exercise 5.24).
+Consider the problem Pm | pj = 1,Mj | 
+Cj . Again, if the Mj sets are
+nested the Least Flexible Job first rule can be shown to be optimal.
+Theorem 5.3.4. The LFJ rule is optimal for Pm | pj = 1,Mj |
+
+Cj
+when the Mj sets are nested.
+Proof. The proof is similar to the proof of Theorem 5.1.8. 	
+
+The previous model is a special case of Rm || 
+Cj . As stated in Chapter 2,
+the machines in the Rm environment are entirely unrelated. That is, machine
+1 may be able to process job 1 in a short time and may need a long time for
+job 2, while machine 2 may be able to process job 2 in a short time and may
+need a long time for job 1. That the Qm environment is a special case is clear.
+Identical machines in parallel with job j being restricted to machine set Mj is
+also a special case; the processing time of job j on a machine that is not part
+of Mj has to be considered very long making it therefore impossible to process
+the job on such a machine.
+The Rm || 
+Cj problemcan be formulated as an integer program with
+a special structure that makes it possible to solve the problem in polynomial
+time. Recall that if job j is processed on machine i and there are k − 1 jobs
+following job j on this machine i, then job j contributes kpij to the value of
+the objective function. Let xikj denote 0 − 1 integer variables, where xikj = 1
+5.3 The Total Completion Time without Preemptions 133
+if job j is scheduled as the kth to last job on machine i and 0 otherwise. The
+integer programi s then formulated as follows:
+minimize
+m
+i=1
+n
+j=1
+n
+k=1
+kpijxikj
+subject to
+m
+i=1
+n
+k=1
+xikj = 1, j = 1, . . . , n
+n
+j=1
+xikj ≤ 1, i = 1, . . .,m, k = 1, . . . , n
+xikj ∈ {0, 1}, i = 1, . . .,m, k = 1, . . . , n j = 1, . . . , n
+The constraints make sure that each job is scheduled exactly once and each
+position on each machine is taken by at most one job. Note that the processing
+times only appear in the objective function.
+This is a so-called weighted bipartite matching problem with on one side the
+n jobs and on the other side nm positions (each machine can process at most n
+jobs). If job j is matched with (assigned to) position ik there is a cost kpij. The
+objective is to determine the matching in this so-called bipartite graph with
+a minimum total cost. It is known from the theory of network flows that the
+integrality constraints on the xikj may be replaced by nonnegativity constraints
+without changing the feasible set. This weighted bipartite matching problem
+then reduces to a regular linear program for which there exist polynomial time
+algorithms. (see Appendix A).
+Note that the optimal schedule does not have to be a non-delay schedule.
+Example 5.3.5 (Minimizing Total Completion Time with Unrelated
+Machines)
+Consider 2 machines and 3 jobs. The processing times of the three jobs on
+the two machines are presented in the table below.
+jobs 1 2 3
+p1j 4 5 3
+p2j 8 9 3
+The bipartite graph associated with this problemi s depicted in Figure 5.8.
+According to the optimal schedule machine 1 processes job 1 first and
+job 2 second. Machine 2 processes job 3. This solution corresponds to
+134 5P arallel Machine Models (Deterministic)
+p11
+p12
+2p11
+2p12 3p12
+2p22
+2p13
+3p13
+2p23 3p23
+3p22
+2p21
+3p11
+3p21
+p11
+1 2
+p22
+p13
+p23
+3
+1, 1 1, 2 1, 3 2, 1 2, 2 2, 3
+Job j
+Position
+i, k
+Fig. 5.8 Bipartite graph for Rm || 
+Cj with three jobs
+x121 = x112 = x213 = 1 and all other xikj equal to zero. This optimal
+schedule is not non-delay (machine 2 is freed at time 3 and the waiting job
+is not put on the machine). ||
+5.4 The Total Completion Time with Preemptions
+In Theorem 5.3.1 it is shown that the nonpreemptive SPT rule minimizes
+
+Cj
+in a parallel machine environment. It turns out that the nonpreemptive SPT
+rule is also optimal when preemptions are allowed. This result is a special case
+of the more general result described below.
+Consider m machines in parallel with different speeds, i.e., Qm | prmp | 
+Cj . This problemlea ds to the so-called Shortest Remaining Processing Time
+on the Fastest Machine (SRPT-FM) rule. According to this rule at any point
+in time the job with the shortest remaining processing time is assigned to the
+fastest machine, the second shortest remaining processing time on the second
+fastest machine, and so on. Clearly, this rule requires preemptions. Every time
+the fastest machine completes a job, the job on the second fastest machine
+moves to the fastest machine, the job on the third fastest machine moves to the
+second fastest machine, and so on. So, at the first job completion there are m−1
+preemptions, at the second job completion there are m − 1 preemptions, and
+so on until the number of remaining jobs is less than the number of machines.
+From that point in time the number of preemptions is equal to the number of
+remaining jobs.
+The following lemma is needed for the proof.
+Lemma 5.4.1. There exists an optimal schedule under which Cj ≤ Ck
+when pj ≤ pk for all j and k.
+Proof. The proof is left as an exercise. 	
+
+Without loss of generality it may be assumed that there are as many machines
+as jobs. If the number of jobs is smaller than the number of machines then the
+5.4 The Total Completion Time with Preemptions 135
+m − n slowest machines are disregarded. If the number of jobs is larger than
+the number of machines, then n − m machines are added with zero speeds.
+Theorem 5.4.2. The SRPT-FM rule is optimal for Qm | prmp | 
+Cj .
+Proof. Under SRPT-FM Cn ≤ Cn−1 ≤ · · · ≤ C1. It is clear that under SRPTFM
+the following equations have to be satisfied:
+v1Cn = pn
+v2Cn + v1(Cn−1 − Cn) = pn−1
+v3Cn + v2(Cn−1 − Cn) + v1(Cn−2 − Cn−1) = pn−2
+...
+vnCn + vn−1(Cn−1 − Cn) + · · · + v1(C1 − C2) = p1
+Adding these equations yields the following set of equations.
+v1Cn = pn
+v2Cn + v1Cn−1 = pn + pn−1
+v3Cn + v2Cn−1 + v1Cn−2 = pn + pn−1 + pn−2
+...
+vnCn + vn−1Cn−1 + · · · + v1C1 = pn + pn−1 + · · · + p1
+Suppose schedule S is optimal. From the previous lemma it follows that
+C
+
+n
+≤ C
+
+n−1
+≤ · · · ≤ C
+
+1.
+The shortest job cannot be completed before pn/v1, i.e., C
+n
+≥ pn/v1 or
+v1C
+
+n
+≥ pn.
+Given that jobs n and n − 1 are completed at C
+n and C
+n−1,
+(v1 + v2)C
+
+n + v1(C
+
+n−1
+− C
+
+n)
+is an upper bound on the amount of processing that can be done on these two
+jobs. This implies that
+v2C
+
+n + v1C
+
+n−1
+≥ pn + pn−1.
+Continuing in this manner it is easy to show that
+vkC
+
+n + vk−1C
+
+n−1 + · · · + v1C
+
+n−k+1
+≥ pn + pn−1 + · · · + pn−k+1.
+136 5P arallel Machine Models (Deterministic)
+So
+v1C
+
+n
+≥ v1Cn
+v2C
+
+n + v1C
+
+n−1
+≥ v2Cn + v1Cn−1
+...
+vnC
+
+n + vn−1C
+
+n−1 + · · · + v1C
+
+1
+≥ vnCn + vn−1Cn−1 + · · · + v1C1
+If a collection of positive numbers αj can be found, such that multiplying the jth
+inequality by αj and adding all inequalities yields the inequality
+
+C
+j
+≥ 
+Cj ,
+then the proof is complete. It can be shown that these αj must satisfy the
+equations
+v1α1 + v2α2 + · · · + vnαn = 1
+v1α2 + v2α3 + · · · + vn−1αn = 1
+...
+v1αn = 1
+As v1 ≥ v2 ≥ · · · ≥ vn such a collection does exist. 	
+
+Example 5.4.3 (Application of the SRPT-FM Rule)
+Consider 4 machines and 7 jobs. The machine data and job data are contained
+in the two tables below.
+machines 1 2 3 4
+vi 4 2 2 1
+jobs 1 2 3 4 5 6 7
+pj 8 16 34 40 45 46 61
+Assuming that preemptions are allowed only at integer points in time, the
+SRPT-FM rule results in the schedule depicted in Figure 5.9. Under this
+optimal schedule the total completion time is 116. ||
+5.5 Due Date Related Objectives
+Single machine problems with due date related objectives that are solvable in
+polynomial time typically have the maximum lateness as objective, e.g., 1 ||
+Lmax, 1 | prmp | Lmax and 1 | rj, prmp | Lmax. Single machine problems with
+5.5 Due Date Related Objectives 137
+0 5 10 15 20 25 30 35
+4 5
+3 4
+2 3
+1
+Machine 4
+Machine 3
+Machine 2
+Machine 1
+C1 = 2 C1 = 5 C3 = 11 C4 = 16 C5 = 21 C6 = 26 C7 = 35
+2
+6
+5
+4
+3
+7
+6
+5
+4
+7
+6
+5
+7
+6 7
+t
+Fig. 5.9 The SRPT-FM schedule (Example 5.4.3)
+the total tardiness or the total weighted tardiness as objective tend to be very
+hard.
+It is easy to see that froma complexity point of view Pm || Lmax is not
+as easy as 1 || Lmax. Consider the special case where all jobs have due date 0.
+Finding a schedule with a minimum Lmax is equivalent to Pm || Cmax and is
+therefore NP-hard.
+Consider Qm | prmp | Lmax. This problemis one of the few parallel machine
+scheduling problems with a due date related objective that is solvable in polynomial
+time. Suppose one has to verify whether there exists a feasible schedule
+with Lmax = z. This implies that for job j the completion time Cj has to be
+less than or equal to dj + z. Let dj + z be a hard deadline ¯ dj . Finding a feasible
+schedule with all jobs completing their processing before these deadlines is
+equivalent to solving the problem Qm | rj, prmp | Cmax. In order to see this,
+reverse the direction of time in the due date problem. Apply the LRPT-FM
+rule starting with the last deadline and work backwards. The deadlines in the
+original problemp lay the role of the release dates in the reversed problem that
+is then equivalent to Qm | rj, prmp | Cmax. If applying the LRPT-FM rule
+backwards results in a feasible schedule with all the jobs in the original problemst
+arting at a time larger than or equal to zero, then there exists a schedule
+for Qm | prmp | Lmax with Lmax ≤ z. In order to find the minimum Lmax a
+simple search has to be done to determine the appropriate minimum value of z.
+Example 5.5.1 (Minimizing Maximum Lateness with Preemptions)
+Consider the following instance of P2 | prmp | Lmax with 4 jobs. The processing
+times and due dates are given in the table below. Preemptions are
+allowed at integer points in time.
+jobs 1 2 3 4
+dj 4 5 8 9
+pj 3 3 3 8
+138 5P arallel Machine Models (Deterministic)
+First, it has to be checked whether there exists a feasible solution with
+Lmax = 0. The data of the instance created through time reversal are determined
+as follows. The release dates are obtained by determining the maximum
+due date in the original problem which is 9 and corresponds to job
+4; the release date of job 4 in the new problemis then set equal to 0. The
+release dates of the remaining jobs are obtained by subtracting the original
+due dates from9 .
+jobs 1 2 3 4
+rj 5 4 1 0
+pj 3 3 3 8
+The question now is: in this new instance can a schedule be created with a
+makespan less than 9? Applying LRPT immediately yields a feasible schedule.
+||
+Consider now Qm | rj, prmp | Lmax. Again a parametric study can be done.
+First an attempt is made to find a schedule with Lmax equal to z. Due date
+dj is replaced by a deadline dj + z. Reversing this problemdo es not provide
+any additional insight as it results in a problemof the same type with release
+dates and due dates reversed. However, this problemstill can be formulated as
+a network flow problem that is solvable in polynomial time.
+5.6 Online Scheduling
+In all previous sections the underlying assumptions were based on the fact
+that all the problemda ta (e.g., number of jobs, processing times, release dates,
+due dates, weights, and so on) are known in advance. The decision-maker can
+determine at time zero the entire schedule while having all the information
+at his disposal. This most common paradigm is usually referred to as offline
+scheduling.
+One category of parallel machine scheduling problems that has not yet been
+addressed in this chapter are the so-called online scheduling problems. In an
+online scheduling problemthe decision-maker does not know in advance how
+many jobs have to be processed and what the processing times are. The decisionmaker
+becomes aware of the existence of a job only when the job is released
+and presented to him. Jobs that are released at the same point in time are
+presented to the decision-maker one after another. The decision-maker only
+knows the number of jobs released at that point in time after the last one has
+been presented to him. The processing time of a job becomes known only when
+the job has been completed. If the assumption is made that jobs are going to
+be released at different points in time, then the decision-maker does not know
+at any given point in time how many jobs are still going to be released and
+5.6 Online Scheduling 139
+what their release dates are going to be. (In an offline scheduling problemal l
+information regarding all n jobs is known a priori.)
+An online counterpart of Pm || γ can be described as follows. The jobs are
+going to be presented to the decision-maker one after another going down a
+list. The decision-maker only knows how long the list is when the end of the list
+has been reached. When a job has been presented to the decision-maker (or,
+equivalently, when the decision-maker has taken a job from the list), he may
+have to wait till one (or more) machines have become idle before he assigns the
+job to a machine. After he has assigned the job to a machine, the decision-maker
+can consider the next job on the list. After a job has been put on a machine
+starting at a certain point in time, the decision-maker is not allowed to preempt
+and has to wait till the job is completed. If the objective function is a regular
+performance measure, then it may not make sense for the decision-maker to
+leave a machine idle when there are still one or more jobs on the list.
+The objective functions in online scheduling are similar to those in offline
+scheduling. The effectiveness of an online scheduling algorithmis measured by
+its competitive ratio with respect to the objective function. An online algorithm
+is ρ-competitive if for any problem instance the objective value of the schedule
+generated by the algorithmi s at most ρ times larger than the optimal objective
+value in case the schedule had been created in an offline manner with all data
+known beforehand. The competitive ratio is basically equivalent to a worst case
+bound.
+Consider the following online counterpart of Pm || Cmax. There are a fixed
+number of machines (m) in parallel; this number is known to the decision-maker.
+The processing time of a job is at time zero not known to the decision-maker; it
+only becomes known upon the completion of a job. When a machine is freed the
+decision-maker has to decide whether to assign a job to that machine or keep it
+idle. He has to decide without knowing the remaining processing times of the
+jobs that are not yet completed and without knowing how many jobs are still
+waiting for processing. One well-known algorithmfo r this problem is usually
+referred to as the List Scheduling (LIST) algorithm. According to LIST, the
+jobs are presented to the decision-maker according to a list and every time the
+decision-maker considers the assignment of a job to a machine, he checks the
+list and takes the next one from the list. So, every time a machine completes a
+job, the decision maker takes the next job from the list and assigns it to that
+machine (the decision-maker does not allow for any idle time on the machine).
+Theorem 5.6.1. The competitive ratio of the LIST algorithm is 2 − 1
+m.
+Proof. First, it has to be shown that the competitive ratio of LIST cannot be
+better (less) than 2−1/m. Consider a sequence of m(m−1) jobs with running
+time 1 followed by one job with running time m. A LIST schedule following this
+sequence finishes by time 2m − 1, while the optimal schedule has a makespan
+of m.
+In order to show that the competitive ratio cannot be larger than 2 − 1/m,
+consider the job that finishes last. Suppose it starts at time t and its processing
+140 5P arallel Machine Models (Deterministic)
+time is p. At all tim es before t all machines must have been busy, otherwise the
+last job could have started earlier. Hence the optimal makespan Cmax(OPT)
+must satisfy
+Cmax(OPT) ≥ t + p
+m
+.
+In addition, Cmax(OPT) > p, as the optimal schedule must process the last job.
+Fromthese two inequalities, it follows that the makespan of the online solution,
+t + p, is bounded froma bove by
+t + p = t + p
+m
++
+
+1 − 1
+m
+
+p ≤
+
+2 − 1
+m
+
+Cmax(OPT). 	
+
+Consider now the online counterpart of Pm | prmp | 
+Cj . The decisionmaker
+only finds out about the processing time of a job the moment it has been
+completed.
+The following algorithmfo r this online scheduling problemis quite different
+fromt he LIST algorithm. The so-called Round Robin (RR) algorithmcycl es
+through the list of jobs, giving each job a fixed unit of processing time in turn.
+The Round Robin algorithm ensures that at all times any two uncompleted jobs
+have received an equal amount of processing time or one job has received just
+one unit of processing more than the other. If the unit of processing is made
+very small, then the Round Robin rule becomes equivalent to the Processor
+Sharing rule (see Example 5.2.9). If the total completion time is the objective
+to be minimized, then the competitive ratio of RR can be determined.
+Theorem 5.6.2. The competitive ratio of the RR algorithm is 2.
+Proof. Assume, for the time being, that the number of jobs, n, is known. In
+what follows, it will actually be shown that the worst case ratio of RR is 2 −
+2m/(n + m).
+In order to show that the worst case ratio cannot be better (lower) than
+2−2m/(n+m), it suffices to find an example that attains this bound. Consider
+n identical jobs with processing time equal to 1 and let n be a multiple of m. It
+is clear that under the Round Robin rule all n jobs are completed at time n/m,
+whereas under the nonpreemptive scheduling rule (which is also equivalent to
+SPT), m jobs are completed at time 1, m jobs at time 2, and so on. So for this
+example the ratio is n2/m divided by
+m
+2
+ n
+m
+ n
+m
++ 1
+
+,
+which equals 2 − 2m/(n + m).
+It remains to be shown that the worst case ratio cannot be worse (larger) than
+2−2m/(n+m). Assume the processing times of the jobs are p1 ≥ p2 ≥ · · · ≥ pn.
+Let R(,), , = 1, . . . , n/m, denote the subset of jobs j that satisfy
+(, − 1)m < j ≤ ,m.
+5.6 Online Scheduling 141
+So R(1) contains jobs 1, . . .,m (the longest jobs); R(2) contains jobs m+1,m+
+2, . . . , 2m, and so on. It can be shown that the schedule that minimizes the total
+completion time is SPT and that the total completion time under SPT is
+n
+j=1
+Cj(OPT) =
+n
+j=1
+Cj(SPT) =
+n/m  
+=1
+
+j∈R()
+,pj.
+Consider now the total completion time under RR. Note that Cj denotes the
+completion time of the jth longest job. It can be shown now that
+Cj(RR) = Cj+1(RR) + (j/m)(pj − pj+1)
+for j ≥ m, while
+Cj(RR) = Cm+1(RR) + pj − pm+1
+for j <m. Eliminating the recurrence yields for j ≥ m
+Cj (RR) = j
+m
+pj +
+1
+m
+n
+k=j+1
+pk
+and for j <m
+Cj(RR) = pj +
+1
+m
+n
+k=m+1
+pk.
+A simple calculation establishes that
+n
+j=1
+Cj(RR) =
+m
+j=1
+pj +
+n
+j=m+1
+2j − 1
+m
+pj .
+The ratio
+
+Cj(RR)/
+
+Cj(OPT) is maximized when all the jobs in the same
+subset have the same processing time. To see this, note that for OPT (SPT)
+the coefficient of pj’s contribution to the total completion time is determined
+solely by its subset index. On the other hand, for RR, the coefficient is smaller
+for the longer jobs within a specific group. Thus, reducing the value of each
+pj to be equal to the smallest processing time of any job in its group can only
+increase the ratio. By a similar argument, it can be shown that the worst case
+ratio is achieved when n is a multiple of m.
+Assume now that each subset contains exactly m jobs of the same length.
+Let q denote the common processing time of any job in subset R(,). Then, a
+simple calculation shows that
+n
+j=1
+Cj (OPT) =
+n/m
+=1
+m,q,
+142 5P arallel Machine Models (Deterministic)
+and
+n
+j=1
+Cj (RR) =
+n/m
+=1
+m(2, − 1)q.
+Once again, the ratio is maximized when all the q are equal, implying that the
+worst case ratio is exactly 2 − 2m/(n + m).
+Since in online scheduling a competitive ratio is usually not expressed as a
+function of n (since the number of jobs is typically not known in advance), the
+competitive ratio has to hold for any value of n. It follows that the competitive
+ratio for RR is equal to 2. 	
+
+Actually, there are several other variants of the online scheduling paradigm.
+The variant considered in this section assumes that the decision-maker does not
+know the processing time of a job when it is released. The decision-maker only
+finds out what the processing time is when the job is completed. This form of
+online scheduling is at times referred to as non-clairvoyant online scheduling.
+In another variant of online scheduling, the processing time of a job becomes
+known to the decision-maker immediately upon the job’s release. This variant
+is often referred to as clairvoyant online scheduling. However, in clairvoyant
+online scheduling the decision-maker still does not know how many jobs are
+going to be released and when the releases will occur.
+An entirely different class of online algorithms are the so-called randomized
+online algorithms. A randomized algorithm allows the decision-maker to make
+random choices (for example, instead of assigning a job to the machine with the
+smallest load, the decision-maker may assign a job to a machine at random). If
+randomization is allowed, then it is of interest to know the expected objective
+value, where the expectation is taken over the randomc hoices of the algorithm.
+A randomized algorithm is σ-competitive if for each instance this expectation
+is within a factor of σ of the optimal objective value.
+5.7 Discussion
+This chapter focuses primarily on parallel machine problems that either are
+polynomial time solvable or have certain properties that are of interest. This
+chapter does not address the more complicated parallel machine problems that
+are strongly NP-hard and have little structure.
+A significant amount of research has been done on parallel machine scheduling
+problems that are strongly NP-hard. A variety of integer programming
+formulations have been developed for Rm || 
+wjCj and Rm || 
+wjUj. These
+integer programs can be solved using a special form of branch-and-bound that is
+called branch-and-price and that is often referred to as column generation (see
+Appendix A). However, there are many other parallel machine problems that
+are more complicated and that have not yet been tackled with exact methods.
+Exercises 143
+An example of such a very hard problem is Qm | sijk | 
+wjTj. This problem
+is extremely hard to solve to optimality. It is already hard to find an optimal
+solution for instances with, say, 5 machines and 30 jobs. However, this problem
+is of considerable interest to industry and many heuristics have been developed
+and experimented with. Part III of this book describes several heuristic methods
+that have been applied to this problem.
+Online scheduling in a parallel machine environment has received a significant
+amount of attention during the last couple of years. Online scheduling
+is important for several reasons. In practice, it is often the case that a very
+limited amount of information is available when a decision must be made, see
+Example 1.1.4. From a theoretical point of view, online scheduling is of interest
+because it establishes a bridge between deterministic and stochastic scheduling.
+In stochastic scheduling decisions also have to be made with only a limited
+amount of information available. However, the stochastic scheduling paradigm
+is still quite different fromthe online paradigm. Nevertheless, the bounds obtained
+in online scheduling often give rise to bounds in stochastic scheduling.
+Exercises (Computational)
+5.1. Consider P6 || Cmax with 13 jobs.
+jobs 1 2 3 4 5 6 7 8 9 10 11 12 13
+pj 6 6 6 7 7 8 8 9 9 10 10 11 11
+(a) Compute the makespan under LPT.
+(b) Find the optimal schedule.
+5.2. Consider P4 | prec | Cmax with 12 jobs.
+jobs 1 2 3 4 5 6 7 8 9 10 11 12
+pj 10 10 10 12 11 10 12 12 10 10 10 10
+The jobs are subject to the precedence constraints depicted in Figure 5.10.
+(a) Apply the generalized version of the CP rule: every time a machine is
+freed select the job at the head of the string with the largest total amount
+of processing.
+(b) Apply the generalized version of the LNS rule: every time a machine is
+freed select the job that precedes the largest total amount of processing.
+(c) Is either one of these two schedules optimal?
+5.3. Consider P3 | brkdwn,Mj | Cmax with 8 jobs.
+144 5P arallel Machine Models (Deterministic)
+1 2 3
+4 6
+5
+7 10
+8 11
+9 12
+Fig. 5.10 Precedence constraints graph (Exercise 5.2)
+jobs 1 2 3 4 5 6 7 8
+pj 10 10 7 7 7 7 7 7
+Machines 1 and 2 are available continuously. Machine 3 is not available during
+the interval [0, 1]; after time 1 it is available throughout. TheMj sets are defined
+as follows:
+M1 = {1, 3}
+M2 = {2, 3}
+M3 = M4 = M5 = {1}
+M6 = M7 = M8 = {2}
+(a) Apply the LPT rule, i.e., give always priority to the longest job that
+can be processed on the machine freed.
+(b) Apply the LFJ rule, i.e., give always priority to the least flexible job
+while disregarding processing times.
+(c) Compute the ratio Cmax(LPT )/Cmax(LFJ).
+5.4. Consider P3 | prmp | 
+Cj with the additional constraint that the completion
+of job j has to be less than or equal to a given fixed deadline dj. Preemptions
+may occur only at integer times 1, 2, 3, . . .
+Exercises 145
+1 2
+7
+3
+4 5
+8
+10 6
+9
+11 12
+13
+Fig. 5.11 Precedence constraints graph (P∞ | prec | Cmax) for
+Exercise 5.5
+jobs 1 2 3 4 5 6 7 8 9 10 11
+pj 2 3 3 5 8 8 8 9 12 14 16
+dj ∞ ∞ ∞ ∞ ∞ ∞ 11 12 13 28 29
+Find the optimal schedule and compute the total completion time.
+5.5. Consider P∞ | prec | Cmax
+jobs 1 2 3 4 5 6 7 8 9 10 11 12 13
+pj 5 11 9 8 7 3 8 6 9 2 5 2 9
+The precedence constraints are depicted in Figure 5.11. Determine the optimal
+makespan and which jobs are critical and which jobs are slack.
+5.6. Consider P5 || 
+h(Cj) with 11 jobs.
+jobs 1 2 3 4 5 6 7 8 9 10 11
+pj 5 5 5 6 6 7 7 8 8 9 9
+The function h(Cj) is defined as follows.
+h(Cj) =
+
+0 ifCj ≤ 15
+Cj − 15 if Cj > 15
+146 5P arallel Machine Models (Deterministic)
+(a) Compute the value of the objective under SPT.
+(b) Compute the value of the objective under the optimal schedule.
+5.7. Consider again P5 ||
+
+h(Cj ) with the 11 jobs of the previous exercise.
+The function h(Cj) is now defined as follows:
+h(Cj) =
+
+Cj if Cj ≤ 15
+15 if Cj > 15.
+(a) Compute the value of the objective function under SPT.
+(b) Compute the value of the objective under the optimal schedule.
+5.8. Consider Q2 | prmp | Cmax with the jobs
+jobs 1 2 3 4
+pj 36 24 16 12
+and machine speeds v1 = 2 and v2 = 1.
+(a) Find the makespan under LRPT when preemptions can only be made
+at the time points 0, 4, 8, 12, and so on.
+(b) Find the makespan under LRPT when preemptions can only be made
+at the time points 0, 2, 4, 6, 8, 10, 12, and so on.
+(c) Find the makespan under LRPT when preemptions can be made at any
+time.
+(d) Compare the makespans under (a), (b) and (c).
+5.9. Consider the following example of P3 | prmp, brkdwn |
+
+Cj with 6
+jobs. Three jobs have a processing time of 1, while the remaining three have
+a processing time of 2. There are three machines, but two machines are not
+available from time 2 onwards. Determine the optimal schedule. Show that
+SRPT is not optimal.
+5.10. Consider the following instance of P2 | prmp | Lmax with 4 jobs. Preemptions
+are allowed at integer points in time. Find an optimal schedule.
+jobs 1 2 3 4
+dj 5 6 9 10
+pj 4 5 7 9
+Exercises 147
+Exercises (Theory)
+5.11. Consider Pm || Cmax.
+(a) Give an example showing that LPT is not necessarily optimal when
+the number of jobs is less than or equal to twice the number of machines
+(n ≤ 2m).
+(b) Show that if an optimal schedule results in at most two jobs on any
+machine, then LPT is optimal.
+5.12. Consider Pm || Cmax. Describe the processing times of the instance that
+attains the worst case bound in Theorem5. 1.1 (as a function of m). (Hint: see
+Exercise 5.1.)
+5.13. Show that the CP rule is optimal for Pm | outtree, pj = 1 | Cmax.
+5.14. Complete the proof of Theorem 5.1.5. That is, show that the CP rule
+applied to Pm | intree, pj = 1 | Cmax results in a makespan that is equal to
+lmax + c.
+5.15. Consider Pm | rj, prmp | Cmax. Formulate the optimal policy and prove
+its optimality.
+5.16. Consider Pm | prmp, brkdwn | Cmax with the number of machines available
+a function of time, i.e., m(t). Show that for any function m(t) LRPT
+minimizes the makespan.
+5.17. Consider Pm | brkdwn |
+
+Cj with the number of machines available a
+function of time, i.e., m(t). Show that if m(t) is increasing the nonpreemptive
+SPT rule is optimal.
+5.18. Consider Pm | prmp, brkdwn | 
+Cj with the number of machines available
+a function of time, i.e., m(t). Show that the preemptive SRPT rule is
+optimal if m(t) ≥ m(s) − 1 for all s < t.
+5.19. Consider Pm | prmp | 
+Cj with the added restriction that all jobs must
+be finished by some fixed deadline ¯ d, where
+¯ d ≥ max
+
+pj
+m
+, p1, . . . , pn
+
+.
+Find the rule that minimizes the total completion time and prove its optimality.
+5.20. Consider Pm || 
+wjCj . Show that in the worst case example of the
+WSPT rule wj has to be approximately equal to pj, for each j.
+5.21. Give a characterization of the class of all schedules that are optimal for
+Pm || 
+Cj . Determine the number of schedules in this class as a function of n
+and m.
+148 5P arallel Machine Models (Deterministic)
+5.22. Consider P2 || 
+Cj . Develop a heuristic for minimizing the makespan
+subject to total completion time optimality. (Hint: Say a job is of Rank j if
+j − 1 jobs follow the job on its machine. With two machines in parallel there
+are two jobs in each rank. Consider the difference in the processing times of the
+two jobs in the same rank. Base the heuristic on these differences.)
+5.23. ConsiderPm | Mj | γ. The setsMj are given. Let Ji denote the set of jobs
+that are allowed to be processed on machine i. Show, through a counterexample,
+that the sets Mj being nested does not necessarily imply that sets Ji are nested.
+Give sufficiency conditions on the set structures under which the Mj sets as well
+as the Ji sets are nested.
+5.24. Show, through a counterexample, that the CP rule is not necessarily
+optimal for Pm | intree, pj = 1 | 
+Cj .
+5.25. Consider Pm | rj, prmp | Lmax. Show through a counterexample that
+the preemptive EDD rule does not necessarily yield an optimal schedule.
+5.26. Consider Pm | intree, prmp | Cmax with the processing time of each job
+at level k equal to pk. Show that a preemptive version of the generalized CP
+rule minimizes the makespan.
+5.27. Consider Q∞ | prec, prmp | Cmax. There are an unlimited number of
+machines that operate at the same speed. There is one machine that is faster.
+Give an algorithm that minimizes the makespan and prove its optimality.
+5.28. Consider an online version of Pm | rj, prec | Cmax. An online algorithm
+for this problemcan be described as follows. The jobs are again presented
+in a list; whenever a machine is freed, the job that ranks highest among the
+remaining jobs which are ready for processing is assigned to that machine (i.e.,
+it must be a job that already has been released and of which all predecessors
+already have been completed). Show that the bound presented in Theorem 5.6.1
+applies to this more general problem as well.
+Comments and References
+The worst case analysis of the LPT rule for Pm || Cmax is fromthe classic
+paper by Graham( 1969). This paper gives one of the first examples of worst
+case analyses of heuristics (see also Graham( 1966)). It also provides a worst
+case analysis of an arbitrary list schedule for Pm || Cmax. A more sophisticated
+heuristic for Pm || Cmax, with a tighter worst case bound, is the so-called MULTIFIT
+heuristic, see Coffman, Garey and Johnson (1978) and Friesen (1984a).
+Lee and Massey (1988) analyze a heuristic that is based on LPT as well as on
+MULTIFIT. Hwang, Lee and Chang (2005) performa worst case analysis of the
+LPT rule for Pm | brkdwn | Cmax. For results on heuristics for the more general
+Qm || Cmax, see Friesen and Langston (1983), Friesen (1984b), and Dobson
+Comments and References 149
+(1984). Davis and Jaffe (1981) present an algorithmf or Rm || Cmax. The CPM
+and PERT procedures have been covered in many papers and textbooks, see for
+example, French (1982). The CP result in Theorem 5.1.5 is due to Hu (1961).
+See Lenstra and Rinnooy Kan (1978) with regard to Pm | pj = 1, prec | Cmax,
+Du and Leung (1989) with regard to P2 | tree | Cmax and Du, Leung and Young
+(1991) with regard to P2 | chains | Cmax. Chen and Liu (1975) and Kunde (1976)
+analyze the worst case behavior of the CP rule for Pm | pj = 1, prec | Cmax. Lin
+and Li (2004) and Li (2006) do a complexity analysis of Pm | pj = 1,Mj | Cmax
+and Qm | pj = p,Mj | Cmax. Apparently, no worst case analysis has been done
+for the LFJ rule.
+For Pm | prmp | Cmax, see McNaughton (1959). For Qm | prmp | Cmax, see
+Horvath, Laman d Sethi (1977), Gonzalez and Sahni (1978a) and McCormick
+and Pinedo (1995).
+Conway,Maxwell and Miller (1967) discuss the SPT rule for Pm || 
+Cj; they
+also give a characterization of the class of optimal schedules. For a discussion
+of Qm || 
+Cj , see Horowitz and Sahni (1976). The worst case bound for the
+WSPT rule for Pm || 
+wjCj is fromKa waguchi and Kyan (1986). Elmaghraby
+and Park (1974) and Sarin, Ahn and Bishop (1988) present branch-and-bound
+algorithms for this problem. Eck and Pinedo (1993) present a heuristic for
+minimizing the makespan and the total completion time simultaneously. The
+optimality of the CP rule for Pm | pj = 1, outtree | 
+Cj is due to Hu (1961).
+For complexity results with regard to Pm | prec | 
+Cj , see Sethi (1977) and
+Du, Leung and Young (1990).
+For an analysis of the Qm | prmp | 
+Cj problem, see Lawler and Labetoulle
+(1978), Gonzalez and Sahni (1978a), McCormick and Pinedo (1995), Leung and
+Pinedo (2003) and Gonzalez, Leung and Pinedo (2006).
+A significant amount of work has been done on Qm | rj, pj = p, prmp | γ; see
+Garey, Johnson, Simons and Tarjan (1981), Federgruen and Groenevelt (1986),
+Lawler and Martel (1989), Martel (1982) and Simons (1983).
+For results with regard to Qm | prmp | Lmax, see Bruno and Gonzalez (1976)
+and Labetoulle, Lawler, Lenstra and Rinnooy Kan (1984). For other due date
+related results, see Sahni and Cho (1979b).
+Chen and Powell (1999) and Van den Akker, Hoogeveen and Van de Velde
+(1999) applied branch-and-bound methods (including column generation) to
+Rm || 
+wjCj and Rm || 
+wjUj .
+The worst case analysis of an arbitrary list schedule for Pm || Cmax is regarded
+as one of the basic results in online scheduling. Theorem5. 6.1 is due to
+Graham( 1966). The analysis of the Round Robin rule and the total completion
+time objective is due to Motwani, Phillips and Torng (1994). Research in online
+scheduling has focused on other parallel machine scheduling problems as well;
+see, for example, Shmoys, Wein and Williamson (1995). For an overview of online
+scheduling on parallel machines with the makespan objective, see Fleischer
+and Wahl (2000). For comprehensive overviews of online scheduling, see Sgall
+(1998) and Pruhs, Sgall and Torng (2004).
